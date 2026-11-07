@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Bell, CalendarCheck, FileText, LayoutDashboard, ListTodo, Menu, Moon, Settings, Sun, X, Zap } from 'lucide-react'
+import { Bell, ChevronRight, FileText, LayoutDashboard, ListTodo, Menu, Moon, Settings, Sun, X, Zap } from 'lucide-react'
 import { useStore } from '../../store/useStore'
 import { NotificationBell } from './NotificationBell'
 import { NotificationPrompt } from './NotificationPrompt'
@@ -23,17 +23,19 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
   const openCount = tasks.filter((t) => t.status !== 'done').length
 
   const toggleTheme = () => updateSettings({ theme: isDark ? 'light' : 'dark' })
+  const initials = (settings.userName || 'You').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase()
 
   const Sidebar = (
     <aside className="glass flex h-full w-[248px] flex-col rounded-none border-y-0 border-l-0 p-4 lg:m-3 lg:h-[calc(100%-1.5rem)] lg:rounded-xl3 lg:border">
       <div className="mb-6 flex items-center gap-2.5 px-2">
-        <div className="grid h-9 w-9 place-items-center rounded-[11px] bg-gradient-to-br from-[#4da3ff] to-[#0a5fd6] text-white shadow-btn"><Zap size={18} strokeWidth={2.4} /></div>
+        <div className="tile-blue h-10 w-10 rounded-[13px]"><Zap size={19} strokeWidth={2.4} fill="currentColor" /></div>
         <div>
           <p className="text-[15px] font-bold leading-none tracking-tight">PulseX</p>
           <p className="mt-0.5 text-[11px] text-ink-mute dark:text-ink-darkm">Accounting workflow</p>
         </div>
         <button className="btn-ghost ml-auto p-1.5 lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X size={18} /></button>
       </div>
+      <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-ink-mute dark:text-ink-darkm">Menu</p>
       <nav className="space-y-1">
         {NAV.map((n) => (
           <NavLink key={n.to} to={n.to} end={n.end} onClick={() => setOpen(false)} className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
@@ -45,16 +47,18 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
           </NavLink>
         ))}
       </nav>
-      <div className="mt-auto space-y-3">
-        <div className="relative overflow-hidden rounded-xl2 bg-gradient-to-br from-[#2b8cff] via-[#4f7cff] to-[#8a5cf6] p-4 text-white shadow-lift">
-          <div className="pointer-events-none absolute -right-6 -top-8 h-24 w-24 rounded-full bg-white/20 blur-xl" />
-          <div className="flex items-center gap-2 text-xs font-medium opacity-90"><CalendarCheck size={14} /> {format(new Date(), 'EEEE')}</div>
-          <p className="mt-1 text-xl font-bold tracking-tight">{format(new Date(), 'd MMMM')}</p>
-          <p className="text-[11px] opacity-80">{settings.userName ? `Keep going, ${settings.userName.split(' ')[0]}.` : 'Set your name in Settings.'}</p>
-        </div>
+      <div className="mt-auto space-y-1">
         <button className="nav-item w-full" onClick={toggleTheme}>
           {isDark ? <Sun size={18} /> : <Moon size={18} />}<span>{isDark ? 'Light mode' : 'Dark mode'}</span>
         </button>
+        <NavLink to="/settings" onClick={() => setOpen(false)} className="glass-strong glass mt-2 flex items-center gap-3 rounded-2xl p-2.5 transition duration-200 ease-apple hover:-translate-y-0.5">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#5ac8fa] to-[#0a7aff] text-[13px] font-bold text-white shadow-btn">{initials}</span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13px] font-semibold">{settings.userName || 'Set your name'}</span>
+            <span className="block text-[11px] text-ink-mute dark:text-ink-darkm">{format(new Date(), 'EEEE, d MMM')}</span>
+          </span>
+          <ChevronRight size={14} className="text-ink-mute" />
+        </NavLink>
       </div>
     </aside>
   )

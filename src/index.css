@@ -86,6 +86,27 @@ body::before {
   }
   .nav-item.active { @apply bg-white/80 text-accent shadow-[0_1px_2px_rgba(0,0,0,0.06)] dark:bg-white/[0.1] dark:text-accent-dark; }
 
+  /* iOS Settings-style solid icon tile */
+  .tile { @apply grid shrink-0 place-items-center rounded-[12px] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_6px_rgba(0,0,0,0.12)]; }
+  .tile-blue { @apply tile bg-gradient-to-b from-[#3f9bff] to-[#0a7aff]; }
+  .tile-green { @apply tile bg-gradient-to-b from-[#4cd964] to-[#30b84d]; }
+  .tile-red { @apply tile bg-gradient-to-b from-[#ff5f55] to-[#ff3b30]; }
+  .tile-orange { @apply tile bg-gradient-to-b from-[#ffad33] to-[#ff9500]; }
+  .tile-purple { @apply tile bg-gradient-to-b from-[#8a84ff] to-[#5e5ce6]; }
+  .tile-teal { @apply tile bg-gradient-to-b from-[#5ad1f0] to-[#32ade6]; }
+  .tile-gray { @apply tile bg-gradient-to-b from-[#a0a0a5] to-[#8e8e93]; }
+
+  /* Hero card: Apple Fitness-style gradient */
+  .hero {
+    @apply relative overflow-hidden rounded-xl2 text-white;
+    background: linear-gradient(135deg, #0a84ff 0%, #3b6cf6 55%, #6a5cf0 100%);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset, 0 24px 60px -18px rgba(27,96,255,0.55);
+  }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 80% at 0% 0%, rgba(255,255,255,0.28), transparent 60%), radial-gradient(50% 60% at 100% 100%, rgba(255,255,255,0.14), transparent 60%); pointer-events: none; }
+  .dark .hero { background: linear-gradient(135deg, #0a6cff 0%, #3456e0 55%, #5b4de0 100%); }
+
+  .kbd { @apply hidden rounded-md border border-black/10 bg-white/70 px-1.5 py-0.5 font-sans text-[10px] font-semibold text-ink-mute shadow-[0_1px_0_rgba(0,0,0,0.08)] sm:inline-block dark:border-white/15 dark:bg-white/10 dark:text-ink-darkm; }
+
   .seg { @apply inline-flex rounded-full bg-black/[0.06] p-1 dark:bg-white/[0.08]; }
   .seg-btn { @apply rounded-full px-3.5 py-1.5 text-xs font-semibold text-ink-soft transition duration-200 ease-apple dark:text-ink-darks; }
   .seg-btn.on { @apply bg-white text-ink shadow-[0_1px_3px_rgba(0,0,0,0.12)] dark:bg-white/[0.16] dark:text-ink-darkp; }
@@ -102,5 +123,17 @@ body::before {
 .recharts-cartesian-grid-horizontal line { stroke: rgba(60,60,67,0.10); }
 .dark .recharts-cartesian-grid-horizontal line { stroke: rgba(255,255,255,0.08); }
 
-@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.fade-up { animation: fadeUp .45s cubic-bezier(0.32, 0.72, 0, 1) both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px) scale(0.995); } to { opacity: 1; transform: none; } }
+.fade-up { animation: fadeUp .55s cubic-bezier(0.32, 0.72, 0, 1) both; }
+.stagger > :nth-child(1) { animation-delay: 0ms }
+.stagger > :nth-child(2) { animation-delay: 50ms }
+.stagger > :nth-child(3) { animation-delay: 100ms }
+.stagger > :nth-child(4) { animation-delay: 150ms }
+.stagger > :nth-child(5) { animation-delay: 200ms }
+.stagger > :nth-child(6) { animation-delay: 250ms }
+.stagger > :nth-child(7) { animation-delay: 300ms }
+.stagger > :nth-child(8) { animation-delay: 350ms }
+
+/* hairline dividers like iOS grouped lists */
+.hairline > * + * { border-top: 0.5px solid rgba(60,60,67,0.14); }
+.dark .hairline > * + * { border-top-color: rgba(255,255,255,0.1); }

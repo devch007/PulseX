@@ -74,15 +74,15 @@ export default function Report() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {[
-          { label: 'Completed', value: data.completed.length, icon: <Check size={18} />, tone: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300' },
-          { label: 'In progress', value: data.inProgress.length, icon: <CircleDashed size={18} />, tone: 'bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300' },
-          { label: 'Pending / blocked', value: data.pending.length + data.blocked.length, icon: <Lock size={18} />, tone: 'bg-amber-50 text-amber-600 dark:bg-amber-400/15 dark:text-amber-300' },
-          { label: 'Hours logged', value: Math.round(data.totalMinutes / 6) / 10, icon: <Clock size={18} />, tone: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300' },
+          { label: 'Completed', value: data.completed.length, icon: <Check size={18} />, tone: 'tile-green' },
+          { label: 'In progress', value: data.inProgress.length, icon: <CircleDashed size={18} />, tone: 'tile-blue' },
+          { label: 'Pending / blocked', value: data.pending.length + data.blocked.length, icon: <Lock size={18} />, tone: 'tile-orange' },
+          { label: 'Hours logged', value: Math.round(data.totalMinutes / 6) / 10, icon: <Clock size={18} />, tone: 'tile-purple' },
         ].map((s) => (
           <div key={s.label} className="card card-pad fade-up flex items-center gap-3">
-            <span className={`grid h-10 w-10 place-items-center rounded-2xl ${s.tone}`}>{s.icon}</span>
+            <span className={`${s.tone} h-10 w-10`}>{s.icon}</span>
             <span><span className="num block text-[24px] leading-none">{s.value}</span><span className="block text-xs text-ink-mute dark:text-ink-darkm">{s.label}</span></span>
           </div>
         ))}
@@ -118,7 +118,7 @@ export default function Report() {
                 {reports.map((r) => (
                   <li key={r.id} className="group flex items-center gap-2 rounded-xl p-2 transition hover:bg-black/[0.03] dark:hover:bg-white/[0.04]">
                     <button className="flex min-w-0 flex-1 items-center gap-2 text-left" onClick={() => setViewing(r.id)}>
-                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent dark:bg-accent-darksoft dark:text-accent-dark"><FileText size={14} /></span>
+                      <span className="tile-gray h-8 w-8 rounded-[9px]"><FileText size={14} /></span>
                       <span className="min-w-0">
                         <span className="block truncate text-sm font-medium">{fmtRange(fromISO(r.weekStart), fromISO(r.weekEnd))}</span>
                         <span className="block text-[11px] text-ink-mute dark:text-ink-darkm">{r.stats.completed} done · saved {format(fromISO(r.createdAt), 'd MMM')}</span>

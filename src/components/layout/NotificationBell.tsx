@@ -10,11 +10,7 @@ const ICONS: Record<Alert['kind'], React.ReactNode> = {
   reminder: <Clock size={14} />, overdue: <AlertTriangle size={14} />, morning: <Sunrise size={14} />, friday: <FileText size={14} />, info: <Bell size={14} />,
 }
 const TONES: Record<Alert['kind'], string> = {
-  reminder: 'bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300',
-  overdue: 'bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-300',
-  morning: 'bg-amber-50 text-amber-600 dark:bg-amber-400/15 dark:text-amber-300',
-  friday: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300',
-  info: 'bg-gray-100 text-gray-600 dark:bg-white/10 dark:text-gray-300',
+  reminder: 'tile-blue', overdue: 'tile-red', morning: 'tile-orange', friday: 'tile-purple', info: 'tile-gray',
 }
 
 export const NotificationBell = () => {
@@ -55,7 +51,7 @@ export const NotificationBell = () => {
                   className="flex w-full gap-3 px-4 py-3 text-left transition hover:bg-black/5 dark:hover:bg-white/5"
                   onClick={() => { setOpen(false); navigate(a.url.replace(/^\/#/, '')) }}
                 >
-                  <span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${TONES[a.kind]}`}>{ICONS[a.kind]}</span>
+                  <span className={`${TONES[a.kind]} mt-0.5 h-8 w-8 rounded-[10px]`}>{ICONS[a.kind]}</span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-medium">{a.title}</span>
                     <span className="block text-xs text-ink-soft dark:text-ink-darks">{a.body}</span>

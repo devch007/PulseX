@@ -88,7 +88,7 @@ export default function Settings() {
             {perm === 'granted' && <button className="btn-outline text-xs" onClick={testNotif}>Send test</button>}
           </div>
         </div>
-        <div className="divide-y divide-line dark:divide-line-dark">
+        <div className="hairline">
           <Toggle checked={n.enabled} onChange={(v) => updateNotificationSettings({ enabled: v })} label="Notifications on" desc="Master switch for all alerts below" />
           <Toggle checked={n.reminders} onChange={(v) => updateNotificationSettings({ reminders: v })} label="Due-soon reminders" desc="Before each task is due (set per task; default below)" />
           <div className="flex items-center justify-between gap-4 py-2">

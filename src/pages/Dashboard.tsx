@@ -14,7 +14,7 @@ import type { Task } from '../types'
 
 const StatCard = ({ icon, label, value, tone, to }: { icon: React.ReactNode; label: string; value: number; tone: string; to: string }) => (
   <Link to={to} className="card card-hover card-pad fade-up flex items-center gap-4">
-    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${tone}`}>{icon}</span>
+    <span className={`${tone} h-11 w-11`}>{icon}</span>
     <span>
       <span className="num block text-[28px] leading-none">{value}</span>
       <span className="mt-1 block text-xs text-ink-mute dark:text-ink-darkm">{label}</span>
@@ -50,7 +50,7 @@ export default function Dashboard() {
     <div className="mx-auto max-w-6xl space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-[13px] font-medium text-ink-mute dark:text-ink-darkm">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
+          <p className="text-[13px] font-semibold uppercase tracking-wider text-accent dark:text-accent-dark">{format(new Date(), 'EEEE, d MMMM')}</p>
           <h2 className="large-title">Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}{firstName ? `, ${firstName}` : ''} 👋</h2>
         </div>
         {hasSamples && (
@@ -61,47 +61,64 @@ export default function Dashboard() {
       </div>
 
       {isFriday && (
-        <Link to="/report" className="fade-up relative flex items-center gap-3 overflow-hidden rounded-xl2 bg-gradient-to-r from-[#1f7cff] via-[#3b82f6] to-[#7c5cf6] px-5 py-4 text-white shadow-lift transition duration-300 ease-apple hover:-translate-y-0.5 hover:brightness-105">
-          <span className="pointer-events-none absolute -left-10 -top-16 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
-          <span className="pointer-events-none absolute -right-8 -bottom-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-          <span className="glass grid h-10 w-10 place-items-center rounded-2xl !bg-white/20 !border-white/30 !shadow-none"><FileText size={20} /></span>
+        <Link to="/report" className="card card-hover fade-up flex items-center gap-4 px-4 py-3.5">
+          <span className="tile-purple h-11 w-11"><FileText size={20} /></span>
           <span className="flex-1">
-            <span className="block font-semibold">Your weekly report is ready, review and send</span>
-            <span className="block text-sm opacity-85">{counts.completedThisWeek} task{counts.completedThisWeek === 1 ? '' : 's'} completed this week{settings.managerName ? ` · for ${settings.managerName}` : ''}</span>
+            <span className="block text-[15px] font-semibold tracking-tight">Your weekly report is ready, review and send</span>
+            <span className="block text-[13px] text-ink-soft dark:text-ink-darks">{counts.completedThisWeek} task{counts.completedThisWeek === 1 ? '' : 's'} completed this week{settings.managerName ? ` · for ${settings.managerName}` : ''}</span>
           </span>
-          <ArrowRight size={20} />
+          <span className="btn-primary">Review <ArrowRight size={15} /></span>
         </Link>
       )}
 
       <QuickAdd onAdvanced={openNew} />
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        <StatCard icon={<CheckCircle2 size={20} />} label="Completed this week" value={counts.completedThisWeek} tone="bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300" to="/tasks?view=week" />
-        <StatCard icon={<AlertTriangle size={20} />} label="Overdue" value={counts.overdue} tone="bg-red-50 text-red-600 dark:bg-red-500/15 dark:text-red-300" to="/tasks?view=today" />
-        <StatCard icon={<Flag size={20} />} label="High-priority pending" value={counts.highPending} tone="bg-amber-50 text-amber-600 dark:bg-amber-400/15 dark:text-amber-300" to="/tasks?view=kanban" />
-        <StatCard icon={<Loader size={20} />} label="In progress" value={counts.inProgress} tone="bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300" to="/tasks?view=kanban" />
+      <div className="stagger grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <StatCard icon={<CheckCircle2 size={20} />} label="Completed this week" value={counts.completedThisWeek} tone="tile-green" to="/tasks?view=week" />
+        <StatCard icon={<AlertTriangle size={20} />} label="Overdue" value={counts.overdue} tone="tile-red" to="/tasks?view=today" />
+        <StatCard icon={<Flag size={20} />} label="High-priority pending" value={counts.highPending} tone="tile-orange" to="/tasks?view=kanban" />
+        <StatCard icon={<Loader size={20} />} label="In progress" value={counts.inProgress} tone="tile-blue" to="/tasks?view=kanban" />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Today's progress" sub={`${today.done} of ${today.total} tasks done`}>
-          <div className="flex items-center gap-5">
-            <ProgressRing value={today.pct} size={136} stroke={13} color={today.pct === 100 ? '#34c759' : '#0a7aff'} color2={today.pct === 100 ? '#30d158' : '#5ac8fa'}>
-              <span className="num text-[32px]">{today.pct}%</span>
-              <span className="text-[11px] text-ink-mute dark:text-ink-darkm">complete</span>
+      <div className="stagger grid gap-4 lg:grid-cols-3">
+        <section className="hero fade-up flex flex-col p-5">
+          <header className="relative mb-4 flex items-start justify-between">
+            <div>
+              <h3 className="text-[15px] font-semibold tracking-tight">Today</h3>
+              <p className="text-xs text-white/75">{today.done} of {today.total} tasks done</p>
+            </div>
+            <span className="rounded-full bg-white/20 px-2.5 py-1 text-[11px] font-semibold backdrop-blur">{format(new Date(), 'EEE d')}</span>
+          </header>
+          <div className="relative flex items-center gap-5">
+            <ProgressRing value={today.pct} size={132} stroke={13} color="#ffffff" color2="#dff1ff" track="rgba(255,255,255,0.22)">
+              <span className="num text-[32px] text-white">{today.pct}%</span>
+              <span className="text-[11px] text-white/75">complete</span>
             </ProgressRing>
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <div className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#ff9500]/15 text-[#ff9500]"><Flame size={18} /></span>
-                <span><span className="num block text-lg leading-tight">{st} day{st === 1 ? '' : 's'}</span><span className="block text-[11px] text-ink-mute dark:text-ink-darkm">Streak</span></span>
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 backdrop-blur"><Flame size={18} /></span>
+                <span><span className="num block text-lg leading-tight">{st} day{st === 1 ? '' : 's'}</span><span className="block text-[11px] text-white/75">Streak</span></span>
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent-soft text-accent dark:bg-accent-darksoft dark:text-accent-dark"><Sparkles size={18} /></span>
-                <span><span className="num block text-lg leading-tight">{score.score}</span><span className="block text-[11px] text-ink-mute dark:text-ink-darkm">Productivity score</span></span>
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 backdrop-blur"><Sparkles size={18} /></span>
+                <span><span className="num block text-lg leading-tight">{score.score}<span className="text-sm text-white/70">/100</span></span><span className="block text-[11px] text-white/75">Productivity score</span></span>
               </div>
-              <p className="text-[11px] text-ink-mute dark:text-ink-darkm">{score.completion}% completed · {score.onTime}% on time (7 days)</p>
+              <p className="text-[11px] text-white/70">{score.completion}% completed · {score.onTime}% on time · 7 days</p>
             </div>
           </div>
-        </Card>
+          <div className="relative mt-auto grid grid-cols-3 gap-2 pt-5">
+            {[
+              { label: 'Due today', value: today.total - today.done },
+              { label: 'Done', value: today.done },
+              { label: 'Overdue', value: counts.overdue },
+            ].map((m) => (
+              <div key={m.label} className="rounded-2xl bg-white/15 px-3 py-2 backdrop-blur">
+                <span className="num block text-lg leading-none">{m.value}</span>
+                <span className="block text-[11px] text-white/75">{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <Card title="This week" sub="Completed vs pending, by day" action={<Legend items={[{ name: 'Completed', color: document.documentElement.classList.contains('dark') ? '#4da3ff' : '#0a7aff', value: weekDone }, { name: 'Pending', color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.14)' : 'rgba(60,60,67,0.14)', value: weekPending }]} />}>
           <WeekBarChart data={series} />

@@ -51,15 +51,16 @@ export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }
 
   return (
     <div className="card glass-strong flex items-center gap-2 rounded-full p-1.5 pl-4 focus-within:ring-4 focus-within:ring-accent/20">
-      <Plus size={18} className="text-accent dark:text-accent-dark" />
+      <span className="tile-blue h-7 w-7 rounded-[9px]"><Plus size={16} strokeWidth={2.6} /></span>
       <input
         value={v}
         onChange={(e) => setV(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && submit()}
         placeholder="Add a task and press Enter…  try: GST return !high #Compliance @fri"
-        className="flex-1 bg-transparent text-sm outline-none placeholder:text-ink-mute dark:placeholder:text-ink-darkm"
+        className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-ink-mute dark:placeholder:text-ink-darkm"
         aria-label="Quick add task"
       />
+      <span className="kbd">⏎ to add</span>
       <button className="btn-ghost hidden sm:inline-flex" onClick={() => onAdvanced(v)} title="Open full form"><Sparkles size={15} /> Details</button>
       <button className="btn-primary" onClick={submit}>Add</button>
     </div>

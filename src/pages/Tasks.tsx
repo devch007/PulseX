@@ -122,7 +122,7 @@ const WeekView = ({ tasks, onEdit, focusId }: { tasks: Task[]; onEdit: (t: Task)
   const inWeek = tasks.filter((t) => t.dueAt && fromISO(t.dueAt) >= mon && fromISO(t.dueAt) <= sun)
   const settingsDays = useStore((s) => s.settings.workingDays)
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="stagger grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {days.filter((d) => settingsDays.includes(d.getDay()) || inWeek.some((t) => isSameDay(fromISO(t.dueAt!), d))).map((d) => {
         const items = sortTasks(inWeek.filter((t) => isSameDay(fromISO(t.dueAt!), d)))
         const done = items.filter((t) => t.status === 'done').length
@@ -156,7 +156,7 @@ const KanbanView = ({ tasks, onEdit, focusId }: { tasks: Task[]; onEdit: (t: Tas
   }
   return (
     <DndContext sensors={sensors} onDragStart={(e) => setActive(tasks.find((t) => t.id === e.active.id) ?? null)} onDragEnd={onEnd} onDragCancel={() => setActive(null)}>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="stagger grid gap-4 md:grid-cols-3">
         {COLS.map((col) => <Column key={col} status={col} tasks={sortTasks(tasks.filter((t) => t.status === col))} onEdit={onEdit} focusId={focusId} />)}
       </div>
       <DragOverlay>{active ? <div className="rotate-1 opacity-90"><TaskCard task={active} onEdit={() => undefined} compact /></div> : null}</DragOverlay>
@@ -169,9 +169,9 @@ const Column = ({ status, tasks, onEdit, focusId }: { status: Status; tasks: Tas
   return (
     <div ref={setNodeRef} className={`glass rounded-xl3 p-3 transition duration-300 ease-apple ${isOver ? 'ring-4 ring-accent/25' : ''}`}>
       <div className="mb-3 flex items-center gap-2 px-1">
-        <span className={`h-2.5 w-2.5 rounded-full ${tone}`} />
-        <p className="text-sm font-semibold">{STATUS_META[status].label}</p>
-        <span className="ml-auto chip bg-black/5 dark:bg-white/10">{tasks.length}</span>
+        <span className={`h-2.5 w-2.5 rounded-full ${tone} shadow-[0_0_0_3px_rgba(0,0,0,0.04)]`} />
+        <p className="text-sm font-semibold tracking-tight">{STATUS_META[status].label}</p>
+        <span className={`ml-auto chip tabular-nums text-white ${tone}`}>{tasks.length}</span>
       </div>
       <div className="min-h-[120px] space-y-2.5">
         {tasks.map((t) => <Draggable key={t.id} task={t} onEdit={onEdit} highlight={t.id === focusId} />)}

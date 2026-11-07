@@ -31,7 +31,34 @@ npm run preview
 The install prompt only appears on `localhost` or HTTPS, which is what `npm run preview` and any
 static host give you. (`npm run dev` also works for installation on localhost.)
 
+## Accounts and multi-device sync (Supabase)
+
+PulseX works fully offline on one device. Add Supabase and every person gets their own account, with
+tasks, categories, settings and reports stored in your own database and synced live across devices.
+
+1. Create a project at https://supabase.com (free tier is enough).
+2. In the Supabase dashboard open **SQL Editor → New query**, paste the contents of `supabase/schema.sql`,
+   and click **Run**. This creates the tables, row-level security (each user only sees their own rows),
+   and realtime.
+3. **Authentication → Providers**: make sure **Email** is enabled. Optional: enable **Google** for the
+   "Continue with Google" button.
+4. **Authentication → URL Configuration**: set **Site URL** to your app URL (for example
+   `https://pulsex.vercel.app`) and add `https://pulsex.vercel.app/welcome` and
+   `http://localhost:5173/welcome` to **Redirect URLs**.
+5. **Project Settings → API**: copy the **Project URL** and the **anon public** key.
+6. Provide them to the build:
+   - Locally: copy `.env.example` to `.env.local` and fill in the two values.
+   - Vercel: **Project → Settings → Environment Variables**, add `VITE_SUPABASE_URL` and
+     `VITE_SUPABASE_ANON_KEY`, then **Redeploy**.
+
+How sync works: the app stays offline-first. Changes save to the device immediately and are pushed to
+Supabase in the background; edits made on another device arrive live through realtime. The first time
+you sign in, any tasks already on the device are uploaded to your account. Signing out clears the device
+copy; your data stays in the cloud.
+
 ## Features
+
+- **Onboarding** – a short welcome flow: account (optional), profile, reminders, sample data.
 
 - **Tasks** – quick-add bar (Enter adds; shortcuts `!high` / `#Compliance` / `@fri`), full form with notes,
   category, priority, due date & time, status, time spent, per-task reminder lead time, recurrence

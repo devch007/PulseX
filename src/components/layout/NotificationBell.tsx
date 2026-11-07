@@ -49,7 +49,7 @@ export const NotificationBell = () => {
               <li key={a.id}>
                 <button
                   className="flex w-full gap-3 px-4 py-3 text-left transition hover:bg-black/5 dark:hover:bg-white/5"
-                  onClick={() => { setOpen(false); navigate(a.url.replace(/^\/#/, '')) }}
+                  onClick={() => { setOpen(false); navigate(a.url) }}
                 >
                   <span className={`${TONES[a.kind]} mt-0.5 h-8 w-8 rounded-[10px]`}>{ICONS[a.kind]}</span>
                   <span className="min-w-0">

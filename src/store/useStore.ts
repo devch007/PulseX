@@ -46,6 +46,14 @@ interface State {
   /** notification keys that already fired → timestamp */
   fired: Record<string, number>
   hydrated: boolean
+  onboarded: boolean
+  user: { id: string; email: string } | null
+  sync: { status: 'local' | 'syncing' | 'synced' | 'offline' | 'error'; lastAt?: string; message?: string }
+  setOnboarded: (v: boolean) => void
+  setUser: (u: { id: string; email: string } | null) => void
+  setSync: (s: Partial<State['sync']>) => void
+  /** Replace data wholesale (used by cloud sync when pulling) */
+  replaceData: (d: Partial<Pick<State, 'tasks' | 'categories' | 'reports' | 'settings'>>) => void
 
   addTask: (t: Omit<Task, 'id' | 'createdAt'> & Partial<Pick<Task, 'id' | 'createdAt'>>) => Task
   updateTask: (id: string, patch: Partial<Task>) => void
@@ -86,14 +94,21 @@ export const useStore = create<State>()(
       alerts: [],
       fired: {},
       hydrated: false,
+      onboarded: false,
+      user: null,
+      sync: { status: 'local' },
+      setOnboarded: (onboarded) => set({ onboarded }),
+      setUser: (user) => set({ user }),
+      setSync: (patch) => set((st) => ({ sync: { ...st.sync, ...patch } })),
+      replaceData: (d) => set((st) => ({ ...st, ...d })),
 
       addTask: (t) => {
-        const task: Task = { id: uid(), createdAt: new Date().toISOString(), ...t }
+        const task: Task = { id: uid(), createdAt: new Date().toISOString(), ...t, updatedAt: new Date().toISOString() }
         set((s) => ({ tasks: [task, ...s.tasks] }))
         return task
       },
       updateTask: (id, patch) =>
-        set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)) })),
+        set((s) => ({ tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch, updatedAt: new Date().toISOString() } : t)) })),
       deleteTask: (id) => set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) })),
       setStatus: (id, status) => {
         const s = get()
@@ -122,13 +137,13 @@ export const useStore = create<State>()(
           set((st) => ({
             tasks: [
               ...spawned,
-              ...st.tasks.map((t) => (t.id === id ? { ...t, status: 'done' as Status, completedAt } : t)),
+              ...st.tasks.map((t) => (t.id === id ? { ...t, status: 'done' as Status, completedAt, updatedAt: completedAt } : t)),
             ],
           }))
         } else {
           set((st) => ({
             tasks: st.tasks.map((t) =>
-              t.id === id ? { ...t, status, completedAt: status === 'done' ? t.completedAt : undefined } : t,
+              t.id === id ? { ...t, status, completedAt: status === 'done' ? t.completedAt : undefined, updatedAt: new Date().toISOString() } : t,
             ),
           }))
         }
@@ -221,13 +236,14 @@ export const useStore = create<State>()(
         }
       },
       resetAll: () =>
-        set({ tasks: [], categories: DEFAULT_CATEGORIES, settings: DEFAULT_SETTINGS, reports: [], alerts: [], fired: {} }),
+        set((st) => ({ tasks: [], categories: DEFAULT_CATEGORIES, settings: { ...DEFAULT_SETTINGS, theme: st.settings.theme }, reports: [], alerts: [], fired: {} })),
     }),
     {
       name: 'pulsex-store',
       version: 1,
       partialize: (s) => ({
         tasks: s.tasks, categories: s.categories, settings: s.settings, reports: s.reports, alerts: s.alerts, fired: s.fired,
+        onboarded: s.onboarded, user: s.user,
       }),
       onRehydrateStorage: () => (state) => {
         state && useStore.setState({ hydrated: true })

@@ -46,7 +46,7 @@ export const showNotification = async (p: NotifyPayload) => {
     const n = new Notification(p.title, opts)
     n.onclick = () => {
       window.focus()
-      window.location.hash = p.url.replace(/^\/#/, '')
+      window.history.pushState({}, '', p.url); window.dispatchEvent(new PopStateEvent('popstate'))
       n.close()
     }
   } catch {
@@ -93,7 +93,7 @@ export const runScheduler = ({ tasks, settings, hasFired, markFired, pushAlert }
       void emit(`rem:${t.id}:${t.dueAt}`, 'reminder', {
         title: `Due ${format(due, 'h:mm a')}: ${t.title}`,
         body: `${t.priority.toUpperCase()} priority · starts in ${Math.max(1, Math.round((due.getTime() - now.getTime()) / 60000))} min`,
-        url: `/#/tasks?task=${t.id}`,
+        url: `/tasks?task=${t.id}`,
         tag: `rem-${t.id}`,
       }, t.id)
     }
@@ -101,7 +101,7 @@ export const runScheduler = ({ tasks, settings, hasFired, markFired, pushAlert }
       void emit(`ovd:${t.id}:${t.dueAt}`, 'overdue', {
         title: `Overdue: ${t.title}`,
         body: `Was due ${format(due, 'EEE h:mm a')}. Open to reschedule or complete.`,
-        url: `/#/tasks?task=${t.id}`,
+        url: `/tasks?task=${t.id}`,
         tag: `ovd-${t.id}`,
       }, t.id)
     }
@@ -115,7 +115,7 @@ export const runScheduler = ({ tasks, settings, hasFired, markFired, pushAlert }
     void emit(`morning:${todayKey()}`, 'morning', {
       title: `Good morning${settings.userName ? `, ${settings.userName.split(' ')[0]}` : ''}`,
       body: `You have ${todays.length} task${todays.length === 1 ? '' : 's'} today, ${high} high priority${overdue ? `, ${overdue} overdue` : ''}.`,
-      url: '/#/tasks?view=today',
+      url: '/tasks?view=today',
       tag: 'morning',
     })
   }
@@ -124,7 +124,7 @@ export const runScheduler = ({ tasks, settings, hasFired, markFired, pushAlert }
     void emit(`friday:${todayKey()}`, 'friday', {
       title: 'Weekly report reminder',
       body: `Your weekly update${settings.managerName ? ` for ${settings.managerName}` : ''} is ready to review and send.`,
-      url: '/#/report',
+      url: '/report',
       tag: 'friday',
     })
   }

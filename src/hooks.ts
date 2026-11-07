@@ -34,8 +34,7 @@ export const useServiceWorker = () => {
     })
     const onMsg = (e: MessageEvent) => {
       if (e.data?.type === 'NAVIGATE' && typeof e.data.url === 'string') {
-        const hash = e.data.url.split('#')[1] ?? '/'
-        navigate(hash)
+        navigate(e.data.url as string)
       }
     }
     navigator.serviceWorker.addEventListener('message', onMsg)

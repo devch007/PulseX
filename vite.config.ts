@@ -29,8 +29,8 @@ export default defineConfig({
           { src: 'icons/icon.svg', sizes: 'any', type: 'image/svg+xml' },
         ],
         shortcuts: [
-          { name: 'Today', url: '/#/tasks?view=today' },
-          { name: 'Weekly report', url: '/#/report' },
+          { name: 'Today', url: '/tasks?view=today' },
+          { name: 'Weekly report', url: '/report' },
         ],
       },
     }),

@@ -18,7 +18,7 @@ const TITLES: Record<string, string> = { '/': 'Dashboard', '/tasks': 'Tasks', '/
 export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode; needRefresh: boolean; onUpdate: () => void }) => {
   const [open, setOpen] = useState(false)
   const { pathname } = useLocation()
-  const { settings, updateSettings, tasks } = useStore()
+  const { settings, updateSettings, tasks, user, sync } = useStore()
   const isDark = document.documentElement.classList.contains('dark')
   const openCount = tasks.filter((t) => t.status !== 'done').length
 
@@ -55,7 +55,10 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
           <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#5ac8fa] to-[#0a7aff] text-[13px] font-bold text-white shadow-btn">{initials}</span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[13px] font-semibold">{settings.userName || 'Set your name'}</span>
-            <span className="block text-[11px] text-ink-mute dark:text-ink-darkm">{format(new Date(), 'EEEE, d MMM')}</span>
+            <span className="flex items-center gap-1.5 text-[11px] text-ink-mute dark:text-ink-darkm">
+              {user && <span className={`h-1.5 w-1.5 rounded-full ${sync.status === 'synced' ? 'bg-[#34c759]' : sync.status === 'syncing' ? 'animate-pulse bg-[#0a7aff]' : sync.status === 'error' ? 'bg-[#ff3b30]' : 'bg-[#ff9500]'}`} />}
+              {user ? (sync.status === 'synced' ? 'Synced' : sync.status === 'syncing' ? 'Syncing…' : sync.status === 'offline' ? 'Offline' : sync.status === 'error' ? 'Sync issue' : 'Connecting') : format(new Date(), 'EEEE, d MMM')}
+            </span>
           </span>
           <ChevronRight size={14} className="text-ink-mute" />
         </NavLink>

@@ -1,6 +1,11 @@
 import { useRef, useState } from 'react'
 import { BellOff, BellRing, Check, Download, Info, Monitor, Moon, Palette, Plus, RotateCcw, Sun, Trash2, Upload, Database, UserRound, Bell, Sparkles } from 'lucide-react'
 import { Card, Segmented, Toggle } from '../components/ui'
+import { AuthForm } from '../components/AuthForm'
+import { cloudEnabled } from '../lib/supabase'
+import { signOut } from '../lib/auth'
+import { pull } from '../lib/sync'
+import { Cloud, CloudOff, LogOut, RefreshCw } from 'lucide-react'
 import { useStore, type BackupFile } from '../store/useStore'
 import { getPermission, requestPermission, showNotification } from '../lib/notifications'
 import { CATEGORY_PALETTE } from '../lib/categories'
@@ -25,7 +30,7 @@ export default function Settings() {
     if (p === 'granted') { updateNotificationSettings({ enabled: true }); flash('Notifications enabled') }
     else flash(p === 'denied' ? 'Blocked by the browser – allow notifications for this site in the address-bar site settings.' : 'Permission not granted')
   }
-  const testNotif = () => showNotification({ title: 'PulseX test notification', body: 'This is how reminders will look.', url: '/#/settings', tag: 'test' })
+  const testNotif = () => showNotification({ title: 'PulseX test notification', body: 'This is how reminders will look.', url: '/settings', tag: 'test' })
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(s.exportData(), null, 2)], { type: 'application/json' })
@@ -50,6 +55,40 @@ export default function Settings() {
   return (
     <div className="mx-auto max-w-4xl space-y-5">
       {msg && <div className="fade-up rounded-xl bg-accent-soft px-4 py-2 text-sm text-accent dark:bg-accent-darksoft dark:text-accent-dark">{msg}</div>}
+
+      <Card title="Account & sync" sub={cloudEnabled ? 'Your data lives in your own Supabase database and syncs across devices' : 'Cloud sync is not configured for this build'}>
+        {s.user ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="tile-blue h-11 w-11 rounded-2xl"><Cloud size={20} /></span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">{s.user.email}</span>
+              <span className="block text-xs text-ink-mute dark:text-ink-darkm">
+                {s.sync.status === 'synced' && `Synced${s.sync.lastAt ? ` · ${format(new Date(s.sync.lastAt), 'h:mm a')}` : ''}`}
+                {s.sync.status === 'syncing' && 'Syncing…'}
+                {s.sync.status === 'offline' && 'Offline – changes will sync when you reconnect'}
+                {s.sync.status === 'error' && `Sync problem: ${s.sync.message ?? 'unknown'}`}
+                {s.sync.status === 'local' && 'Connecting…'}
+              </span>
+            </span>
+            <button className="btn-outline text-xs" onClick={() => pull().then(() => flash('Synced')).catch((e) => flash(`Sync failed: ${e.message}`))}><RefreshCw size={14} /> Sync now</button>
+            <button className="btn-danger text-xs" onClick={() => confirm('Sign out? Local data on this device will be cleared. Your data stays safe in the cloud.') && signOut().then(() => flash('Signed out'))}><LogOut size={14} /> Sign out</button>
+          </div>
+        ) : cloudEnabled ? (
+          <div className="grid gap-5 sm:grid-cols-[1fr_1.2fr]">
+            <div>
+              <span className="tile-blue mb-3 h-11 w-11 rounded-2xl"><Cloud size={20} /></span>
+              <p className="text-sm font-semibold">Sign in to sync</p>
+              <p className="mt-1 text-xs text-ink-soft dark:text-ink-darks">Your current tasks on this device are uploaded to your account the first time you sign in, so nothing is lost.</p>
+            </div>
+            <AuthForm compact onDone={() => flash('Signed in')} />
+          </div>
+        ) : (
+          <div className="flex items-start gap-3">
+            <span className="tile-gray h-11 w-11 rounded-2xl"><CloudOff size={20} /></span>
+            <p className="text-sm text-ink-soft dark:text-ink-darks">Add <code className="rounded bg-black/5 px-1 dark:bg-white/10">VITE_SUPABASE_URL</code> and <code className="rounded bg-black/5 px-1 dark:bg-white/10">VITE_SUPABASE_ANON_KEY</code> to the build environment and run the SQL in <code className="rounded bg-black/5 px-1 dark:bg-white/10">supabase/schema.sql</code> to enable accounts and multi-device sync. Until then everything is stored on this device.</p>
+          </div>
+        )}
+      </Card>
 
       <Card title="Profile" sub="Used in greetings and in the weekly report sign-off">
         <div className="grid gap-4 sm:grid-cols-3">
@@ -157,6 +196,7 @@ export default function Settings() {
           <button className="btn-outline text-xs" onClick={() => { s.loadSamples(); flash('Sample tasks loaded') }}><Sparkles size={14} /> Load sample tasks</button>
           <button className="btn-outline text-xs" onClick={() => { s.clearSamples(); flash('Sample tasks removed') }}><Trash2 size={14} /> Clear sample tasks</button>
           <button className="btn-danger text-xs" onClick={() => confirm('Delete ALL tasks, reports and settings? Export a backup first.') && s.resetAll()}><RotateCcw size={14} /> Reset everything</button>
+          <button className="btn-outline text-xs" onClick={() => { s.setOnboarded(false); window.location.assign('/welcome') }}>Show welcome again</button>
         </div>
         <p className="mt-3 flex items-center gap-1.5 text-[11px] text-ink-mute dark:text-ink-darkm"><UserRound size={12} /> No account, no server. Data stays on this device.<Check size={12} className="text-emerald-500" /></p>
       </Card>

@@ -39,7 +39,7 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  const url: string = (event.notification.data && event.notification.data.url) || '/#/'
+  const url: string = (event.notification.data && event.notification.data.url) || '/'
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (list) => {
       const target = new URL(url, self.location.origin).href

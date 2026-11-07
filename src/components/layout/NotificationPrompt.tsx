@@ -14,8 +14,8 @@ export const NotificationPrompt = () => {
     const p = await requestPermission()
     if (p === 'granted') {
       updateNotificationSettings({ enabled: true })
-      pushAlert({ kind: 'info', title: 'Notifications enabled', body: 'You will get reminders while PulseX is open.', url: '/#/settings' })
-      void showNotification({ title: 'PulseX reminders are on', body: 'You will be reminded before tasks are due.', url: '/#/', tag: 'welcome' })
+      pushAlert({ kind: 'info', title: 'Notifications enabled', body: 'You will get reminders while PulseX is open.', url: '/settings' })
+      void showNotification({ title: 'PulseX reminders are on', body: 'You will be reminded before tasks are due.', url: '/', tag: 'welcome' })
     }
   }
   const dismiss = () => { sessionStorage.setItem('pulsex-notif-dismissed', '1'); setDismissed(true) }

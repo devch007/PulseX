@@ -30,6 +30,7 @@ export interface Task {
   /** id of the recurring parent (for spawned occurrences) */
   seriesId?: string
   sample?: boolean
+  updatedAt?: string
 }
 
 export interface Category {

@@ -13,11 +13,11 @@ import { useIsFriday, useMinuteTick } from '../hooks'
 import type { Task } from '../types'
 
 const StatCard = ({ icon, label, value, tone, to }: { icon: React.ReactNode; label: string; value: number; tone: string; to: string }) => (
-  <Link to={to} className="card card-pad fade-up flex items-center gap-4 transition hover:shadow-md">
-    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${tone}`}>{icon}</span>
+  <Link to={to} className="card card-hover card-pad fade-up flex items-center gap-4">
+    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${tone}`}>{icon}</span>
     <span>
-      <span className="block text-2xl font-bold leading-tight">{value}</span>
-      <span className="block text-xs text-ink-mute dark:text-ink-darkm">{label}</span>
+      <span className="num block text-[28px] leading-none">{value}</span>
+      <span className="mt-1 block text-xs text-ink-mute dark:text-ink-darkm">{label}</span>
     </span>
   </Link>
 )
@@ -50,8 +50,8 @@ export default function Dashboard() {
     <div className="mx-auto max-w-6xl space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs text-ink-mute dark:text-ink-darkm">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
-          <h2 className="text-2xl font-bold">Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}{firstName ? `, ${firstName}` : ''} 👋</h2>
+          <p className="text-[13px] font-medium text-ink-mute dark:text-ink-darkm">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
+          <h2 className="large-title">Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}{firstName ? `, ${firstName}` : ''} 👋</h2>
         </div>
         {hasSamples && (
           <button className="btn-outline text-xs" onClick={() => confirm('Remove all sample tasks? Your own tasks are kept.') && clearSamples()}>
@@ -61,8 +61,10 @@ export default function Dashboard() {
       </div>
 
       {isFriday && (
-        <Link to="/report" className="fade-up flex items-center gap-3 rounded-xl2 bg-gradient-to-r from-accent to-violet-600 px-5 py-4 text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-white/20"><FileText size={20} /></span>
+        <Link to="/report" className="fade-up relative flex items-center gap-3 overflow-hidden rounded-xl2 bg-gradient-to-r from-[#1f7cff] via-[#3b82f6] to-[#7c5cf6] px-5 py-4 text-white shadow-lift transition duration-300 ease-apple hover:-translate-y-0.5 hover:brightness-105">
+          <span className="pointer-events-none absolute -left-10 -top-16 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
+          <span className="pointer-events-none absolute -right-8 -bottom-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <span className="glass grid h-10 w-10 place-items-center rounded-2xl !bg-white/20 !border-white/30 !shadow-none"><FileText size={20} /></span>
           <span className="flex-1">
             <span className="block font-semibold">Your weekly report is ready, review and send</span>
             <span className="block text-sm opacity-85">{counts.completedThisWeek} task{counts.completedThisWeek === 1 ? '' : 's'} completed this week{settings.managerName ? ` · for ${settings.managerName}` : ''}</span>
@@ -83,25 +85,25 @@ export default function Dashboard() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title="Today's progress" sub={`${today.done} of ${today.total} tasks done`}>
           <div className="flex items-center gap-5">
-            <ProgressRing value={today.pct} size={132} stroke={12} color={today.pct === 100 ? '#0ca30c' : '#4f46e5'}>
-              <span className="text-3xl font-bold">{today.pct}%</span>
+            <ProgressRing value={today.pct} size={136} stroke={13} color={today.pct === 100 ? '#34c759' : '#0a7aff'} color2={today.pct === 100 ? '#30d158' : '#5ac8fa'}>
+              <span className="num text-[32px]">{today.pct}%</span>
               <span className="text-[11px] text-ink-mute dark:text-ink-darkm">complete</span>
             </ProgressRing>
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-orange-50 text-orange-500 dark:bg-orange-500/15 dark:text-orange-300"><Flame size={18} /></span>
-                <span><span className="block text-lg font-bold leading-tight">{st} day{st === 1 ? '' : 's'}</span><span className="block text-[11px] text-ink-mute dark:text-ink-darkm">Streak</span></span>
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#ff9500]/15 text-[#ff9500]"><Flame size={18} /></span>
+                <span><span className="num block text-lg leading-tight">{st} day{st === 1 ? '' : 's'}</span><span className="block text-[11px] text-ink-mute dark:text-ink-darkm">Streak</span></span>
               </div>
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-accent-soft text-accent dark:bg-accent-darksoft dark:text-accent-dark"><Sparkles size={18} /></span>
-                <span><span className="block text-lg font-bold leading-tight">{score.score}</span><span className="block text-[11px] text-ink-mute dark:text-ink-darkm">Productivity score</span></span>
+                <span><span className="num block text-lg leading-tight">{score.score}</span><span className="block text-[11px] text-ink-mute dark:text-ink-darkm">Productivity score</span></span>
               </div>
               <p className="text-[11px] text-ink-mute dark:text-ink-darkm">{score.completion}% completed · {score.onTime}% on time (7 days)</p>
             </div>
           </div>
         </Card>
 
-        <Card title="This week" sub="Completed vs pending, by day" action={<Legend items={[{ name: 'Completed', color: document.documentElement.classList.contains('dark') ? '#8b84ff' : '#4f46e5', value: weekDone }, { name: 'Pending', color: document.documentElement.classList.contains('dark') ? '#3a3f55' : '#d9dcea', value: weekPending }]} />}>
+        <Card title="This week" sub="Completed vs pending, by day" action={<Legend items={[{ name: 'Completed', color: document.documentElement.classList.contains('dark') ? '#4da3ff' : '#0a7aff', value: weekDone }, { name: 'Pending', color: document.documentElement.classList.contains('dark') ? 'rgba(255,255,255,0.14)' : 'rgba(60,60,67,0.14)', value: weekPending }]} />}>
           <WeekBarChart data={series} />
         </Card>
 

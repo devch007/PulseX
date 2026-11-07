@@ -31,11 +31,11 @@ export const Modal = ({ open, onClose, title, children, wide }: {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
       <div
-        className={`card w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl2`}
+        className={`card glass-strong w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl3 sm:rounded-xl3 fade-up`}
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog" aria-modal="true" aria-label={title}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line bg-card px-5 py-4 dark:border-line-dark dark:bg-card-dark">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-line px-5 py-4 backdrop-blur-xl dark:border-line-dark">
           <h2 className="text-base font-semibold">{title}</h2>
           <button className="btn-ghost -mr-2 p-2" onClick={onClose} aria-label="Close"><X size={18} /></button>
         </div>
@@ -53,25 +53,32 @@ export const Toggle = ({ checked, onChange, label, desc }: { checked: boolean; o
     </span>
     <button
       type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition ${checked ? 'bg-accent dark:bg-accent-dark' : 'bg-gray-300 dark:bg-gray-600'}`}
+      className={`relative h-[26px] w-[46px] shrink-0 rounded-full transition duration-300 ease-apple ${checked ? 'bg-[#34c759]' : 'bg-black/15 dark:bg-white/20'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${checked ? 'left-[22px]' : 'left-0.5'}`} />
+      <span className={`absolute top-[2px] h-[22px] w-[22px] rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.25)] transition-all duration-300 ease-apple ${checked ? 'left-[22px]' : 'left-[2px]'}`} />
     </button>
   </label>
 )
 
-export const ProgressRing = ({ value, size = 120, stroke = 10, children, color = '#4f46e5', track }: {
-  value: number; size?: number; stroke?: number; children?: ReactNode; color?: string; track?: string
+export const ProgressRing = ({ value, size = 120, stroke = 10, children, color = '#0a7aff', color2, track }: {
+  value: number; size?: number; stroke?: number; children?: ReactNode; color?: string; color2?: string; track?: string
 }) => {
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const off = c - (Math.max(0, Math.min(100, value)) / 100) * c
+  const id = `ring-${color.replace('#', '')}-${(color2 ?? '').replace('#', '')}`
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track ?? 'currentColor'} className={track ? '' : 'text-line dark:text-line-dark'} strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={off} style={{ transition: 'stroke-dashoffset .6s ease' }} />
+        <defs>
+          <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={color} />
+            <stop offset="100%" stopColor={color2 ?? color} />
+          </linearGradient>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track ?? color} strokeOpacity={track ? 1 : 0.14} strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth={stroke} strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={off} style={{ transition: 'stroke-dashoffset .9s cubic-bezier(0.32,0.72,0,1)', filter: `drop-shadow(0 0 6px ${color}55)` }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">{children}</div>
     </div>
@@ -89,10 +96,9 @@ export const Empty = ({ icon, title, hint }: { icon: ReactNode; title: string; h
 export const Segmented = <T extends string>({ value, onChange, options }: {
   value: T; onChange: (v: T) => void; options: { value: T; label: ReactNode }[]
 }) => (
-  <div className="inline-flex rounded-xl bg-black/5 p-1 dark:bg-white/5">
+  <div className="seg">
     {options.map((o) => (
-      <button key={o.value} onClick={() => onChange(o.value)}
-        className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${value === o.value ? 'bg-card text-ink shadow-sm dark:bg-card-dark dark:text-ink-darkp' : 'text-ink-soft hover:text-ink dark:text-ink-darks'}`}>
+      <button key={o.value} onClick={() => onChange(o.value)} className={`seg-btn ${value === o.value ? 'on' : ''}`}>
         {o.label}
       </button>
     ))}

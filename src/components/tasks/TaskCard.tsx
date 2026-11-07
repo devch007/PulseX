@@ -18,16 +18,16 @@ export const TaskCard = ({ task, onEdit, compact, highlight }: {
   return (
     <article
       id={`task-${task.id}`}
-      className={`group card relative flex gap-3 p-3.5 transition hover:shadow-md ${done ? 'opacity-70' : ''} ${
+      className={`group card card-hover relative flex gap-3 rounded-[18px] p-3.5 ${done ? 'opacity-70' : ''} ${
         overdue ? 'border-red-200 dark:border-red-500/40' : ''
       } ${highlight ? 'ring-2 ring-accent/50' : ''}`}
     >
-      <span className="absolute left-0 top-3 bottom-3 w-1 rounded-r" style={{ background: PRIORITY_META[task.priority].color }} />
+      <span className="absolute left-0 top-4 bottom-4 w-[3px] rounded-r-full" style={{ background: PRIORITY_META[task.priority].color }} />
       <button
         onClick={() => toggleDone(task.id)}
         aria-label={done ? 'Mark as not done' : 'Mark as done'}
-        className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 transition ${
-          done ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-gray-300 hover:border-accent dark:border-gray-600'
+        className={`mt-0.5 grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border-[1.5px] transition duration-200 ease-apple active:scale-90 ${
+          done ? 'border-[#34c759] bg-[#34c759] text-white' : 'border-black/20 hover:border-accent hover:bg-accent/10 dark:border-white/25'
         }`}
       >
         {done && <Check size={12} strokeWidth={3} />}

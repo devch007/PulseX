@@ -82,8 +82,8 @@ export default function Report() {
           { label: 'Hours logged', value: Math.round(data.totalMinutes / 6) / 10, icon: <Clock size={18} />, tone: 'bg-violet-50 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300' },
         ].map((s) => (
           <div key={s.label} className="card card-pad fade-up flex items-center gap-3">
-            <span className={`grid h-10 w-10 place-items-center rounded-xl ${s.tone}`}>{s.icon}</span>
-            <span><span className="block text-xl font-bold leading-tight">{s.value}</span><span className="block text-xs text-ink-mute dark:text-ink-darkm">{s.label}</span></span>
+            <span className={`grid h-10 w-10 place-items-center rounded-2xl ${s.tone}`}>{s.icon}</span>
+            <span><span className="num block text-[24px] leading-none">{s.value}</span><span className="block text-xs text-ink-mute dark:text-ink-darkm">{s.label}</span></span>
           </div>
         ))}
       </div>
@@ -94,7 +94,7 @@ export default function Report() {
           <label className="label">Subject</label>
           <input className="input mb-3" value={subject} onChange={(e) => { setSubject(e.target.value); setDirty(true) }} />
           <label className="label">Message (editable)</label>
-          <textarea className="input min-h-[520px] font-mono text-[13px] leading-relaxed" value={text} onChange={(e) => { setText(e.target.value); setDirty(true) }} />
+          <textarea className="input min-h-[520px] font-mono text-[13px] leading-relaxed tracking-normal" value={text} onChange={(e) => { setText(e.target.value); setDirty(true) }} />
           {dirty && <p className="mt-2 text-[11px] text-ink-mute dark:text-ink-darkm">You have edited this report. Regenerate to rebuild it from your tasks.</p>}
         </Card>
 

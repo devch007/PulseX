@@ -7,7 +7,7 @@ const TooltipBox = ({ active, payload, label, fmt }: {
 }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="card px-3 py-2 text-xs shadow-lg">
+    <div className="card glass-strong px-3 py-2 text-xs shadow-lift">
       {label && <p className="mb-1 font-semibold">{label}</p>}
       {payload.map((p) => (
         <p key={p.name} className="flex items-center gap-2">
@@ -29,8 +29,8 @@ export const WeekBarChart = ({ data }: { data: { day: string; completed: number;
         <XAxis dataKey="day" axisLine={false} tickLine={false} />
         <YAxis allowDecimals={false} axisLine={false} tickLine={false} />
         <Tooltip cursor={{ fill: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }} content={<TooltipBox />} />
-        <Bar dataKey="completed" name="Completed" fill={dark ? '#8b84ff' : '#4f46e5'} radius={[4, 4, 0, 0]} barSize={14} animationDuration={500} />
-        <Bar dataKey="pending" name="Pending" fill={dark ? '#3a3f55' : '#d9dcea'} radius={[4, 4, 0, 0]} barSize={14} animationDuration={500} />
+        <Bar dataKey="completed" name="Completed" fill={dark ? '#4da3ff' : '#0a7aff'} radius={[4, 4, 0, 0]} barSize={14} animationDuration={500} />
+        <Bar dataKey="pending" name="Pending" fill={dark ? 'rgba(255,255,255,0.14)' : 'rgba(60,60,67,0.14)'} radius={[4, 4, 0, 0]} barSize={14} animationDuration={500} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -42,14 +42,14 @@ export const CategoryDonut = ({ data, total }: { data: { name: string; value: nu
     <div className="relative">
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>
-          <Pie data={data} dataKey="value" nameKey="name" innerRadius={62} outerRadius={88} paddingAngle={2} animationDuration={500} stroke={dark ? '#181b25' : '#ffffff'} strokeWidth={2}>
+          <Pie data={data} dataKey="value" nameKey="name" innerRadius={62} outerRadius={88} paddingAngle={2} animationDuration={500} stroke={dark ? '#1d1f2a' : '#ffffff'} strokeWidth={3}>
             {data.map((d) => <Cell key={d.name} fill={d.color} />)}
           </Pie>
           <Tooltip content={<TooltipBox fmt={(p) => `${p.name}: ${p.value} open`} />} />
         </PieChart>
       </ResponsiveContainer>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold">{total}</span>
+        <span className="num text-3xl">{total}</span>
         <span className="text-[11px] text-ink-mute dark:text-ink-darkm">open tasks</span>
       </div>
     </div>

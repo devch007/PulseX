@@ -78,7 +78,7 @@ export default function Tasks() {
           {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
         <label className="flex items-center gap-1.5 text-xs text-ink-soft dark:text-ink-darks">
-          <input type="checkbox" className="accent-indigo-600" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> Show done
+          <input type="checkbox" className="accent-[#0a7aff]" checked={showDone} onChange={(e) => setShowDone(e.target.checked)} /> Show done
         </label>
         <button className="btn-primary" onClick={() => openNew({})}><Plus size={16} /> New</button>
       </div>
@@ -165,9 +165,9 @@ const KanbanView = ({ tasks, onEdit, focusId }: { tasks: Task[]; onEdit: (t: Tas
 }
 const Column = ({ status, tasks, onEdit, focusId }: { status: Status; tasks: Task[]; onEdit: (t: Task) => void; focusId: string | null }) => {
   const { setNodeRef, isOver } = useDroppable({ id: status })
-  const tone = { todo: 'bg-gray-400', inprogress: 'bg-blue-500', done: 'bg-emerald-500' }[status]
+  const tone = { todo: 'bg-[#8e8e93]', inprogress: 'bg-[#0a7aff]', done: 'bg-[#34c759]' }[status]
   return (
-    <div ref={setNodeRef} className={`rounded-xl2 border border-dashed p-3 transition ${isOver ? 'border-accent bg-accent-soft/60 dark:bg-accent-darksoft/60' : 'border-line bg-black/[0.02] dark:border-line-dark dark:bg-white/[0.02]'}`}>
+    <div ref={setNodeRef} className={`glass rounded-xl3 p-3 transition duration-300 ease-apple ${isOver ? 'ring-4 ring-accent/25' : ''}`}>
       <div className="mb-3 flex items-center gap-2 px-1">
         <span className={`h-2.5 w-2.5 rounded-full ${tone}`} />
         <p className="text-sm font-semibold">{STATUS_META[status].label}</p>

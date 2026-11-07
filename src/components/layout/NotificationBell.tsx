@@ -37,10 +37,10 @@ export const NotificationBell = () => {
     <div ref={ref} className="relative">
       <button className="btn-ghost relative p-2" onClick={() => { setOpen((o) => !o); if (!open) markAlertsRead() }} aria-label="Notifications">
         <Bell size={20} />
-        {unread > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">{unread}</span>}
+        {unread > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff3b30] px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#1c1e28]">{unread}</span>}
       </button>
       {open && (
-        <div className="card absolute right-0 mt-2 w-80 overflow-hidden p-0 shadow-xl">
+        <div className="card glass-strong absolute right-0 mt-3 w-80 overflow-hidden p-0 shadow-lift fade-up">
           <div className="flex items-center justify-between border-b border-line px-4 py-3 dark:border-line-dark">
             <p className="text-sm font-semibold">Recent alerts</p>
             {alerts.length > 0 && <button className="btn-ghost p-1 text-xs" onClick={clearAlerts}><Trash2 size={13} /> Clear</button>}

@@ -21,7 +21,7 @@ export const NotificationPrompt = () => {
   const dismiss = () => { sessionStorage.setItem('pulsex-notif-dismissed', '1'); setDismissed(true) }
 
   return (
-    <div className="mx-4 mt-4 flex items-center gap-3 rounded-xl2 border border-indigo-100 bg-accent-soft px-4 py-3 text-sm dark:border-indigo-900/50 dark:bg-accent-darksoft sm:mx-6">
+    <div className="glass mx-4 mt-2 flex items-center gap-3 rounded-xl2 px-4 py-3 text-sm sm:mx-8">
       <BellRing size={18} className="shrink-0 text-accent dark:text-accent-dark" />
       <p className="flex-1">
         <span className="font-medium">Want reminders before deadlines?</span>{' '}

@@ -50,7 +50,7 @@ export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }
   }
 
   return (
-    <div className="card flex items-center gap-2 p-2 pl-4">
+    <div className="card glass-strong flex items-center gap-2 rounded-full p-1.5 pl-4 focus-within:ring-4 focus-within:ring-accent/20">
       <Plus size={18} className="text-accent dark:text-accent-dark" />
       <input
         value={v}

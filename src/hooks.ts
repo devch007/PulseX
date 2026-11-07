@@ -13,7 +13,7 @@ export const useTheme = () => {
       const dark = theme === 'dark' || (theme === 'system' && mq.matches)
       document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
       document.documentElement.classList.toggle('dark', dark)
-      document.querySelector('meta[name=theme-color]')?.setAttribute('content', dark ? '#181b25' : '#4f46e5')
+      document.querySelector('meta[name=theme-color]')?.setAttribute('content', dark ? '#0b0c12' : '#f2f3f8')
     }
     apply()
     mq.addEventListener('change', apply)

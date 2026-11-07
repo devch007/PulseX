@@ -31,7 +31,7 @@ export const Modal = ({ open, onClose, title, children, wide }: {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
       <div
-        className={`card glass-strong w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl3 sm:rounded-xl3 fade-up`}
+        className={`card glass-strong !bg-[rgba(255,255,255,0.94)] dark:!bg-[rgba(24,26,36,0.94)] w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl3 sm:rounded-xl3 fade-up`}
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog" aria-modal="true" aria-label={title}
       >

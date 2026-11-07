@@ -46,48 +46,56 @@ const fmtHours = (min: number) => {
 
 export const reportSubject = (d: ReportData) => `Weekly Update – ${fmtRange(d.range.start, d.range.end)}`
 
+const line = (ch = '─', n = 34) => ch.repeat(n)
+const H = (t: string) => [t.toUpperCase(), line()]
+
 export const generateReportText = (d: ReportData, settings: Settings, cats: Category[]): string => {
   const L: string[] = []
-  const greet = settings.managerName ? `Hi ${settings.managerName.split(' ')[0]},` : 'Hi,'
+  const first = settings.managerName ? settings.managerName.split(' ')[0] : ''
   const areas = d.byCategory.length
-  L.push(greet, '')
-  L.push(
-    `Here is my weekly update for ${fmtRange(d.range.start, d.range.end)}. ` +
-      (d.completed.length
-        ? `Completed ${d.completed.length} task${d.completed.length === 1 ? '' : 's'} this week across ${areas} area${areas === 1 ? '' : 's'}` +
-          (d.totalMinutes ? ` (${fmtHours(d.totalMinutes)} logged)` : '') + '.'
-        : 'No tasks were closed this week; details below.'),
-    '',
-  )
+  const highDone = d.completed.filter((t) => t.priority === 'high')
 
-  L.push('KEY ACCOMPLISHMENTS')
-  if (d.byCategory.length === 0) L.push('• None recorded this week.')
-  for (const g of d.byCategory) {
-    L.push(`${g.category.name}:`)
-    for (const t of g.tasks) L.push(`  • ${t.title}${t.completedAt ? ` (${format(fromISO(t.completedAt), 'EEE d MMM')})` : ''}`)
-  }
+  L.push(`Hi ${first || 'there'},`, '')
+  L.push(`Sharing my weekly update for ${fmtRange(d.range.start, d.range.end)}.`, '')
+
+  // At-a-glance block
+  L.push(...H('At a glance'))
+  L.push(`✔  Completed: ${d.completed.length} task${d.completed.length === 1 ? '' : 's'} across ${areas} area${areas === 1 ? '' : 's'}`)
+  L.push(`◐  In progress: ${d.inProgress.length}`)
+  L.push(`!  Pending / blocked: ${d.pending.length + d.blocked.length}`)
+  if (d.totalMinutes) L.push(`⏱  Time logged: ${fmtHours(d.totalMinutes)}`)
+  if (highDone.length) L.push(`★  High-priority items closed: ${highDone.map((t) => t.title).slice(0, 3).join('; ')}${highDone.length > 3 ? '…' : ''}`)
   L.push('')
 
-  L.push('IN PROGRESS')
+  L.push(...H('Key accomplishments'))
+  if (d.byCategory.length === 0) L.push('• None recorded this week.')
+  d.byCategory.forEach((g, gi) => {
+    L.push(`${gi + 1}. ${g.category.name} (${g.tasks.length})`)
+    for (const t of g.tasks) L.push(`   • ${t.title}${t.completedAt ? ` — ${format(fromISO(t.completedAt), 'EEE d MMM')}` : ''}`)
+  })
+  L.push('')
+
+  L.push(...H('In progress'))
   if (d.inProgress.length === 0) L.push('• Nothing currently in progress.')
   for (const t of d.inProgress)
-    L.push(`• ${t.title} – ${categoryOf(cats, t.categoryId).name}; expected completion ${t.dueAt ? format(fromISO(t.dueAt), 'EEE d MMM') : 'TBC'}`)
+    L.push(`• ${t.title}`, `   ${categoryOf(cats, t.categoryId).name} · expected ${t.dueAt ? format(fromISO(t.dueAt), 'EEE d MMM') : 'TBC'}${t.timeSpent ? ` · ${fmtHours(t.timeSpent)} so far` : ''}`)
   L.push('')
 
-  L.push('PENDING / BLOCKED – SUPPORT NEEDED')
+  L.push(...H('Pending & support needed'))
   if (d.blocked.length === 0 && d.pending.length === 0) L.push('• No blockers at the moment.')
-  for (const t of d.blocked) L.push(`• [Blocked] ${t.title}${t.notes ? ` – ${t.notes}` : ''}`)
+  for (const t of d.blocked) L.push(`• [BLOCKED] ${t.title}`, `   Need: ${t.notes ?? 'your input to proceed'}`)
   for (const t of d.pending)
-    L.push(`• ${t.title}${isOverdue(t.dueAt, t.status) ? ` (overdue since ${format(fromISO(t.dueAt!), 'd MMM')})` : t.dueAt ? ` (due ${format(fromISO(t.dueAt), 'd MMM')})` : ''}`)
+    L.push(`• ${t.title}${isOverdue(t.dueAt, t.status) ? ` — overdue since ${format(fromISO(t.dueAt!), 'd MMM')}` : t.dueAt ? ` — due ${format(fromISO(t.dueAt), 'd MMM')}` : ''}`)
   L.push('')
 
-  L.push(`PLAN FOR NEXT WEEK (${fmtRange(nextWorkWeek(d.range.start).start, nextWorkWeek(d.range.start).end)})`)
+  const nw = nextWorkWeek(d.range.start)
+  L.push(...H(`Plan for next week · ${fmtRange(nw.start, nw.end)}`))
   if (d.nextWeek.length === 0) L.push('• To be planned.')
   for (const t of d.nextWeek)
-    L.push(`• ${t.title} – ${categoryOf(cats, t.categoryId).name}, ${format(fromISO(t.dueAt!), 'EEE d MMM')}${t.priority === 'high' ? ' (high priority)' : ''}`)
+    L.push(`• ${format(fromISO(t.dueAt!), 'EEE d')} — ${t.title} (${categoryOf(cats, t.categoryId).name})${t.priority === 'high' ? ' ★' : ''}`)
   L.push('')
 
-  L.push('Please let me know if you would like more detail on any of the above.', '')
+  L.push('Happy to walk through any of these in more detail.', '')
   L.push('Best regards,', settings.userName || '[Your name]')
   return L.join('\n')
 }

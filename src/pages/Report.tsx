@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock, Copy, Download, FileText, History, Mail, RefreshCw, Save, Trash2, Check, CircleDashed, Lock, CalendarRange } from 'lucide-react'
 import { addWeeks, format } from 'date-fns'
-import { Card, Empty } from '../components/ui'
+import { Card, Empty, Segmented } from '../components/ui'
 import { useStore } from '../store/useStore'
 import { compileWeek, generateReportText, reportSubject } from '../lib/report'
 import { fmtRange, fromISO } from '../lib/dates'
@@ -17,6 +17,7 @@ export default function Report() {
   const [dirty, setDirty] = useState(false)
   const [copied, setCopied] = useState(false)
   const [viewing, setViewing] = useState<string | null>(null)
+  const [view, setView] = useState<'preview' | 'edit'>('preview')
 
   useEffect(() => { if (!dirty) { setText(generated); setSubject(reportSubject(data)) } }, [generated, data, dirty])
 
@@ -93,8 +94,18 @@ export default function Report() {
           action={<button className="btn-ghost text-xs" onClick={regenerate} title="Discard edits and regenerate from tasks"><RefreshCw size={13} /> Regenerate</button>}>
           <label className="label">Subject</label>
           <input className="input mb-3" value={subject} onChange={(e) => { setSubject(e.target.value); setDirty(true) }} />
-          <label className="label">Message (editable)</label>
-          <textarea className="input min-h-[520px] font-mono text-[13px] leading-relaxed tracking-normal" value={text} onChange={(e) => { setText(e.target.value); setDirty(true) }} />
+          <div className="mb-2 flex items-center justify-between">
+            <label className="label !mb-0">Message</label>
+            <Segmented value={view} onChange={setView} options={[{ value: 'preview', label: 'Preview' }, { value: 'edit', label: 'Edit' }]} />
+          </div>
+          {view === 'edit' ? (
+            <textarea className="input min-h-[560px] font-mono text-[13px] leading-relaxed tracking-normal" value={text} onChange={(e) => { setText(e.target.value); setDirty(true) }} />
+          ) : (
+            <div className="rounded-2xl bg-white/70 p-6 shadow-[inset_0_0_0_1px_rgba(60,60,67,0.08)] dark:bg-white/[0.04] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]" onDoubleClick={() => setView('edit')}>
+              <MessagePreview text={text} />
+              <p className="mt-4 text-[11px] text-ink-mute dark:text-ink-darkm">Double-click to edit. This is exactly what gets copied or emailed as plain text.</p>
+            </div>
+          )}
           {dirty && <p className="mt-2 text-[11px] text-ink-mute dark:text-ink-darkm">You have edited this report. Regenerate to rebuild it from your tasks.</p>}
         </Card>
 
@@ -147,6 +158,27 @@ export default function Report() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+
+/** Renders the plain-text report with light typographic structure. */
+const MessagePreview = ({ text }: { text: string }) => {
+  const lines = text.split('\n')
+  return (
+    <div className="space-y-1 text-[14px] leading-relaxed">
+      {lines.map((l, i) => {
+        if (/^─+$/.test(l.trim())) return <div key={i} className="mb-2 h-px bg-black/10 dark:bg-white/10" />
+        if (/^[A-Z][A-Z &·\-–0-9]+$/.test(l.trim()) && l.trim().length > 3) return <p key={i} className="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-accent dark:text-accent-dark">{l}</p>
+        if (/^\d+\. /.test(l)) return <p key={i} className="mt-2 font-semibold">{l}</p>
+        if (/^\s{3}• /.test(l)) return <p key={i} className="pl-7 text-ink-soft dark:text-ink-darks">• {l.replace(/^\s{3}• /, '')}</p>
+        if (/^\s{3}\S/.test(l)) return <p key={i} className="pl-5 text-[13px] text-ink-mute dark:text-ink-darkm">{l.trim()}</p>
+        if (/^• /.test(l)) return <p key={i} className="pl-2">{l}</p>
+        if (/^[✔◐!⏱★]\s/.test(l)) return <p key={i} className="flex gap-2"><span className="w-4 text-center text-accent dark:text-accent-dark">{l[0]}</span><span>{l.slice(1).trim()}</span></p>
+        if (!l.trim()) return <div key={i} className="h-2" />
+        return <p key={i}>{l}</p>
+      })}
     </div>
   )
 }

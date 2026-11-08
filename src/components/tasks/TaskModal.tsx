@@ -11,7 +11,7 @@ const REMIND = [0, 5, 15, 30, 60, 1440]
 const remindLabel = (m: number) => (m === 0 ? 'At time' : m < 60 ? `${m} min` : m === 60 ? '1 hour' : '1 day')
 
 const Section = ({ icon, title, children, aside }: { icon: React.ReactNode; title: string; children: React.ReactNode; aside?: React.ReactNode }) => (
-  <section className="rounded-2xl bg-black/[0.035] p-3.5 dark:bg-white/[0.05]">
+  <section className="flex flex-col rounded-2xl bg-black/[0.035] p-4 dark:bg-white/[0.05]">
     <div className="mb-2.5 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-ink-mute dark:text-ink-darkm">
       {icon}{title}{aside && <span className="ml-auto normal-case tracking-normal">{aside}</span>}
     </div>
@@ -87,10 +87,14 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
   return (
     <Modal open={open} onClose={onClose} title={task ? 'Edit task' : 'New task'} wide>
       <form onSubmit={submit} className="space-y-3">
-        <div>
-          <input className="input !bg-transparent !px-0 !py-1 !text-[22px] font-semibold tracking-tight !ring-0 placeholder:font-normal dark:!bg-transparent" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs doing?" autoFocus required />
-          <textarea className="input mt-1 min-h-[56px] !bg-transparent !px-0 !py-1 text-sm !ring-0 dark:!bg-transparent" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes, reference numbers, what's blocking…" />
+        <div className="flex gap-3">
+          <span className="tile-blue mt-1 h-10 w-10 shrink-0 rounded-[13px]"><Flag size={18} /></span>
+          <div className="min-w-0 flex-1">
+            <input className="w-full bg-transparent !text-[24px] font-bold tracking-[-0.02em] outline-none placeholder:font-semibold placeholder:text-ink-mute/70 dark:placeholder:text-ink-darkm" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What needs doing?" autoFocus required />
+            <textarea rows={2} className="mt-1 w-full resize-none bg-transparent text-[14px] leading-relaxed text-ink-soft outline-none placeholder:text-ink-mute/70 dark:text-ink-darks dark:placeholder:text-ink-darkm" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Add notes, reference numbers, or what's blocking…" />
+          </div>
         </div>
+        <div className="h-px bg-black/[0.06] dark:bg-white/[0.08]" />
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Section icon={<Tag size={13} />} title="Category">
@@ -134,6 +138,9 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
             <div className="flex flex-wrap gap-1.5">
               {(['none', 'daily', 'weekly', 'monthly'] as RecurrenceFreq[]).map((f) => <Pill key={f} on={freq === f} onClick={() => setFreq(f)}>{f === 'none' ? 'Never' : f[0].toUpperCase() + f.slice(1)}</Pill>)}
             </div>
+            <p className="mt-auto pt-3 text-xs text-ink-mute dark:text-ink-darkm">
+              {freq === 'none' ? 'One-off task.' : freq === 'daily' ? 'A fresh copy is created every day when you complete this one.' : freq === 'weekly' ? `Repeats every ${WEEKDAYS[weekday]}. The next one appears when you complete this.` : `Repeats on the ${dom}${[1, 21, 31].includes(dom) ? 'st' : [2, 22].includes(dom) ? 'nd' : [3, 23].includes(dom) ? 'rd' : 'th'} of every month.`}
+            </p>
             {freq === 'weekly' && (
               <div className="mt-2 flex gap-1">
                 {WEEKDAYS.map((d, i) => <button type="button" key={d} onClick={() => setWeekday(i)} className={`h-8 w-8 rounded-full text-[11px] font-semibold transition ${weekday === i ? 'bg-accent text-white dark:bg-accent-dark dark:text-[#07111f]' : 'bg-white/80 text-ink-soft dark:bg-white/10 dark:text-ink-darks'}`}>{d[0]}</button>)}
@@ -152,10 +159,16 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
           </Section>
         </div>
 
-        <div className="flex items-center justify-between pt-1">
-          {task ? (
-            <button type="button" className="btn-danger" onClick={() => { if (confirm('Delete this task?')) { deleteTask(task.id); onClose() } }}><Trash2 size={14} /> Delete</button>
-          ) : <span className="flex items-center gap-1.5 text-[11px] text-ink-mute dark:text-ink-darkm">{blocked && <><Lock size={11} /> Blocked</>}{priority === 'high' && <><AlertTriangle size={11} /> High priority</>}</span>}
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <div className="flex min-w-0 items-center gap-2">
+            {task && <button type="button" className="btn-danger" onClick={() => { if (confirm('Delete this task?')) { deleteTask(task.id); onClose() } }}><Trash2 size={14} /> Delete</button>}
+            <span className="flex flex-wrap items-center gap-1.5 text-[12px] text-ink-mute dark:text-ink-darkm">
+              <span className="chip bg-black/[0.05] dark:bg-white/10"><CalendarDays size={11} />{date ? `${format(new Date(date + 'T00:00'), 'EEE d MMM')} · ${time}` : 'No due date'}</span>
+              {date && <span className="chip bg-black/[0.05] dark:bg-white/10"><Clock size={11} />remind {remindLabel(reminder).toLowerCase()} before</span>}
+              {blocked && <span className="chip bg-orange-500/10 text-orange-600 dark:text-orange-300"><Lock size={11} />Blocked</span>}
+              {priority === 'high' && <span className="chip bg-red-500/10 text-red-600 dark:text-red-300"><AlertTriangle size={11} />High</span>}
+            </span>
+          </div>
           <div className="flex gap-2">
             <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn-primary px-5">{task ? 'Save changes' : 'Add task'}</button>

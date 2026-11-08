@@ -1,3 +1,8 @@
+/* Samsung Sharp Sans is proprietary. If you own it, drop the files into public/fonts/ with these names and it is used automatically. */
+@font-face { font-family: 'Samsung Sharp Sans'; font-weight: 400; font-display: swap; src: local('Samsung Sharp Sans'), local('SamsungSharpSans'), url('/fonts/SamsungSharpSans-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'Samsung Sharp Sans'; font-weight: 500; font-display: swap; src: local('Samsung Sharp Sans Medium'), local('SamsungSharpSans-Medium'), url('/fonts/SamsungSharpSans-Medium.woff2') format('woff2'); }
+@font-face { font-family: 'Samsung Sharp Sans'; font-weight: 700; font-display: swap; src: local('Samsung Sharp Sans Bold'), local('SamsungSharpSans-Bold'), url('/fonts/SamsungSharpSans-Bold.woff2') format('woff2'); }
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -22,8 +27,7 @@
 html, body, #root { height: 100%; }
 body {
   @apply bg-canvas text-ink font-sans antialiased dark:bg-canvas-dark dark:text-ink-darkp;
-  letter-spacing: -0.011em;
-  font-feature-settings: 'cv11', 'ss01', 'cv05';
+  letter-spacing: -0.012em;
   text-rendering: optimizeLegibility;
 }
 
@@ -52,6 +56,8 @@ body::before {
   }
   .dark .glass { box-shadow: 0 0 0 0.5px var(--glass-edge), 0 1px 0 rgba(255,255,255,0.06) inset, 0 24px 60px -20px rgba(0,0,0,0.65); }
   .glass-strong { background: var(--glass-bg-strong); }
+  .sheet { background: rgba(255,255,255,0.95) !important; }
+  .dark .sheet { background: rgba(26,28,38,0.96) !important; }
 
   .card { @apply glass rounded-xl2 transition duration-300 ease-apple; }
   .card-pad { @apply p-5; }

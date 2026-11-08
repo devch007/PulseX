@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Samsung Sharp Sans"', '"SamsungSharpSans"', '"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         canvas: { DEFAULT: '#f2f3f8', dark: '#0b0c12' },

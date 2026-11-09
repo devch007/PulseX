@@ -51,7 +51,7 @@ export default function Welcome() {
             </div>
             <p className="relative text-[12px] font-semibold uppercase tracking-[0.18em] text-white/80">Welcome to</p>
             <h1 className="relative mt-1 text-[40px] font-bold leading-none tracking-[-0.035em]">PulseX</h1>
-            <p className="relative mx-auto mt-3 max-w-sm text-[15px] text-white/85">Your week, beautifully organised. Built for accountants who close the books and still leave on time.</p>
+            <p className="relative mx-auto mt-3 max-w-sm text-[15px] text-white/85">Your week, beautifully organised. Plan your day, track what matters, and send a polished weekly update in one click.</p>
           </div>
         ) : (
           <div className="flex items-center gap-3 px-6 pt-5">
@@ -71,8 +71,8 @@ export default function Welcome() {
               <div className="stagger grid gap-3 sm:grid-cols-3">
                 {[
                   { t: 'See your day', d: 'Progress ring, streaks and what is due next.', tile: 'tile-blue', icon: <BarChart3 size={18} /> },
-                  { t: 'Friday in one click', d: 'A polished weekly update for your manager.', tile: 'tile-purple', icon: <FileText size={18} /> },
-                  { t: 'Never miss a filing', d: 'Reminders for GST, TDS and month-end.', tile: 'tile-orange', icon: <BellRing size={18} /> },
+                  { t: 'Friday in one click', d: 'A polished weekly update for your manager or team.', tile: 'tile-purple', icon: <FileText size={18} /> },
+                  { t: 'Never miss a deadline', d: 'Gentle reminders before things are due.', tile: 'tile-orange', icon: <BellRing size={18} /> },
                 ].map((f) => (
                   <div key={f.t} className="card fade-up p-4">
                     <span className={`${f.tile} mb-3 h-9 w-9`}>{f.icon}</span>
@@ -172,7 +172,7 @@ export default function Welcome() {
                 {user ? <>Signed in as <span className="font-medium text-ink dark:text-ink-darkp">{user.email}</span>. {sync.status === 'synced' ? 'Your data is synced.' : 'Syncing your data…'}</> : 'Everything stays on this device. You can sign in any time from Settings.'}
               </p>
               <div className="card mt-5 p-2 text-left">
-                <Toggle checked={keepSamples} onChange={setKeepSamples} label="Start with sample tasks" desc={`${tasks.filter((t) => t.sample).length} realistic accounting tasks so you can explore. Clear them any time.`} />
+                <Toggle checked={keepSamples} onChange={setKeepSamples} label="Start with sample tasks" desc={`${tasks.filter((t) => t.sample).length} realistic tasks so you can explore. Clear them any time.`} />
               </div>
               <button className="btn-primary mt-5 w-full py-3 text-[15px]" onClick={finish}><ListChecks size={16} /> Open my dashboard</button>
             </div>

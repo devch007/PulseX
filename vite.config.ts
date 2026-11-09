@@ -14,9 +14,9 @@ export default defineConfig({
       devOptions: { enabled: true, type: 'module' },
       includeAssets: ['icons/*.svg', 'icons/*.png'],
       manifest: {
-        name: 'PulseX – Accounting Task Dashboard',
+        name: 'PulseX – Visual Task Dashboard',
         short_name: 'PulseX',
-        description: 'Visual to-do dashboard, weekly report generator and reminders for accountants.',
+        description: 'Visual to-do dashboard, weekly report generator and reminders.',
         theme_color: '#0a7aff',
         background_color: '#f2f3f8',
         display: 'standalone',

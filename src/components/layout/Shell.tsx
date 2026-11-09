@@ -31,7 +31,7 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
         <div className="tile-blue h-10 w-10 rounded-[13px]"><Zap size={19} strokeWidth={2.4} fill="currentColor" /></div>
         <div>
           <p className="text-[15px] font-bold leading-none tracking-tight">PulseX</p>
-          <p className="mt-0.5 text-[11px] text-ink-mute dark:text-ink-darkm">Accounting workflow</p>
+          <p className="mt-0.5 text-[11px] text-ink-mute dark:text-ink-darkm">Your week, organised</p>
         </div>
         <button className="btn-ghost ml-auto p-1.5 lg:hidden" onClick={() => setOpen(false)} aria-label="Close menu"><X size={18} /></button>
       </div>

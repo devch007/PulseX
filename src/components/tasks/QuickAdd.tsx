@@ -8,7 +8,7 @@ import { addDays } from 'date-fns'
 /**
  * Quick-add bar. Enter adds the task. Understands a few shortcuts:
  *   !high / !med / !low   → priority
- *   #Compliance           → category (by name)
+ *   #Clients              → category (by name)
  *   @today / @tomorrow / @mon..@sun → due date (6 pm)
  */
 export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }) => {
@@ -58,7 +58,7 @@ export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }
         value={v}
         onChange={(e) => setV(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && submit()}
-        placeholder="Add a task and press Enter…  try: GST return !high #Compliance @fri"
+        placeholder="Add a task and press Enter…  try: Send proposal !high #Clients @fri"
         className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-ink-mute dark:placeholder:text-ink-darkm"
         aria-label="Quick add task"
       />

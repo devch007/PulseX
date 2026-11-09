@@ -1,6 +1,6 @@
-# PulseX – accounting task dashboard
+# PulseX – visual task dashboard
 
-A personal productivity web app for accountants: a visual to-do dashboard, a Friday weekly-report
+A personal productivity web app: a visual to-do dashboard, a Friday weekly-report
 generator, and browser reminders. No backend, no login – everything is stored in your browser's
 `localStorage`, with JSON export/import for backups. Installable as a PWA.
 

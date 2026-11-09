@@ -6,10 +6,10 @@ export const CATEGORY_PALETTE = [
 ]
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: 'reconciliation', name: 'Reconciliation', color: '#2a78d6', builtIn: true },
-  { id: 'compliance', name: 'Compliance', color: '#eb6834', builtIn: true },
-  { id: 'reporting', name: 'Reporting', color: '#1baf7a', builtIn: true },
-  { id: 'client', name: 'Client', color: '#e87ba4', builtIn: true },
+  { id: 'work', name: 'Work', color: '#2a78d6', builtIn: true },
+  { id: 'clients', name: 'Clients', color: '#eb6834', builtIn: true },
+  { id: 'finance', name: 'Finance', color: '#1baf7a', builtIn: true },
+  { id: 'personal', name: 'Personal', color: '#e87ba4', builtIn: true },
   { id: 'admin', name: 'Admin', color: '#eda100', builtIn: true },
 ]
 

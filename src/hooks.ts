@@ -97,3 +97,29 @@ export const useCountUp = (value: number, ms = 700) => {
   }, [value, ms])
   return shown
 }
+
+/* ---------- PWA install ---------- */
+interface BeforeInstallPromptEvent extends Event { prompt: () => Promise<void>; userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }> }
+let deferredPrompt: BeforeInstallPromptEvent | null = null
+const listeners = new Set<() => void>()
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e as BeforeInstallPromptEvent; listeners.forEach((l) => l()) })
+  window.addEventListener('appinstalled', () => { deferredPrompt = null; listeners.forEach((l) => l()) })
+}
+export const useInstallPrompt = () => {
+  const [, force] = useState(0)
+  useEffect(() => { const l = () => force((x) => x + 1); listeners.add(l); return () => { listeners.delete(l) } }, [])
+  const installed = typeof window !== 'undefined' && (window.matchMedia('(display-mode: standalone)').matches || (navigator as unknown as { standalone?: boolean }).standalone === true)
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+  const isIOS = /iPhone|iPad|iPod/.test(ua)
+  const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Edg|CriOS/.test(ua)
+  const install = async () => {
+    if (!deferredPrompt) return 'unavailable' as const
+    await deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === 'accepted') deferredPrompt = null
+    listeners.forEach((l) => l())
+    return outcome
+  }
+  return { canPrompt: !!deferredPrompt, installed, isIOS, isSafari, install }
+}

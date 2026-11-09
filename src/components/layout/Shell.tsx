@@ -4,6 +4,7 @@ import { Bell, ChevronRight, FileText, LayoutDashboard, ListTodo, Menu, Moon, Se
 import { useStore } from '../../store/useStore'
 import { NotificationBell } from './NotificationBell'
 import { NotificationPrompt } from './NotificationPrompt'
+import { InstallButton } from '../InstallButton'
 import { format } from 'date-fns'
 
 const NAV = [
@@ -48,6 +49,7 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
         ))}
       </nav>
       <div className="mt-auto space-y-1">
+        <InstallButton />
         <button className="nav-item w-full" onClick={toggleTheme}>
           {isDark ? <Sun size={18} /> : <Moon size={18} />}<span>{isDark ? 'Light mode' : 'Dark mode'}</span>
         </button>

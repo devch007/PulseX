@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { BellOff, BellRing, Check, Download, Info, Monitor, Moon, Palette, Plus, RotateCcw, Sun, Trash2, Upload, Database, UserRound, Bell, Sparkles } from 'lucide-react'
 import { Card, Segmented, Toggle } from '../components/ui'
 import { AuthForm } from '../components/AuthForm'
+import { InstallButton } from '../components/InstallButton'
 import { cloudEnabled } from '../lib/supabase'
 import { signOut } from '../lib/auth'
 import { pull } from '../lib/sync'
@@ -157,6 +158,10 @@ export default function Settings() {
             </ul>
           </div>
         </div>
+      </Card>
+
+      <Card title="Install as an app" sub="Runs in its own window, pins to your dock or taskbar, and keeps reminders running in the background">
+        <InstallButton variant="card" />
       </Card>
 
       <Card title="Appearance" sub="Theme and categories">

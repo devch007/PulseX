@@ -21,6 +21,12 @@ export const NotificationBell = () => {
   const { pathname, search } = useLocation()
   useEffect(() => setOpen(false), [pathname, search])
   const unread = alerts.filter((a) => !a.read).length
+  const [ringing, setRinging] = useState(false)
+  const prevUnread = useRef(unread)
+  useEffect(() => {
+    if (unread > prevUnread.current) { setRinging(true); const t = setTimeout(() => setRinging(false), 1000); return () => clearTimeout(t) }
+    prevUnread.current = unread
+  }, [unread])
 
   useEffect(() => {
     if (!open) return
@@ -32,7 +38,7 @@ export const NotificationBell = () => {
   return (
     <div ref={ref} className="relative">
       <button className="btn-ghost relative p-2" onClick={() => { setOpen((o) => !o); if (!open) markAlertsRead() }} aria-label="Notifications">
-        <Bell size={20} />
+        <Bell size={20} className={ringing ? 'bell-ring' : ''} />
         {unread > 0 && <span className="absolute right-1 top-1 grid h-4 min-w-4 place-items-center rounded-full bg-[#ff3b30] px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#1c1e28]">{unread}</span>}
       </button>
       {open && (

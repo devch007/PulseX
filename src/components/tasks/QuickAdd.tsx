@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Sparkles } from 'lucide-react'
+import { Check, Plus, Sparkles } from 'lucide-react'
 import { useStore } from '../../store/useStore'
 import type { Priority } from '../../types'
 import { combineDateTime, format } from '../../lib/dates'
@@ -13,6 +13,7 @@ import { addDays } from 'date-fns'
  */
 export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }) => {
   const [v, setV] = useState('')
+  const [added, setAdded] = useState(false)
   const { addTask, categories, settings } = useStore()
 
   const parse = (raw: string) => {
@@ -47,6 +48,7 @@ export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }
     if (!parsed.title) return
     addTask({ ...parsed, status: 'todo', reminderMinutes: settings.notifications.defaultReminderMinutes, recurrence: { freq: 'none' } })
     setV('')
+    setAdded(true); setTimeout(() => setAdded(false), 1200)
   }
 
   return (
@@ -62,7 +64,7 @@ export const QuickAdd = ({ onAdvanced }: { onAdvanced: (title: string) => void }
       />
       <span className="kbd">⏎ to add</span>
       <button className="btn-ghost hidden sm:inline-flex" onClick={() => onAdvanced(v)} title="Open full form"><Sparkles size={15} /> Details</button>
-      <button className="btn-primary" onClick={submit}>Add</button>
+      <button className={`btn-primary min-w-[64px] transition-colors duration-300 ${added ? '!bg-[#34c759] !shadow-none' : ''}`} onClick={submit}>{added ? <Check size={16} strokeWidth={3} className="pop" /> : 'Add'}</button>
     </div>
   )
 }

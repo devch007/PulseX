@@ -85,7 +85,7 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
           </div>
         </header>
         {!settings.notifications.enabled && <NotificationPrompt />}
-        <main className="flex-1 overflow-y-auto px-4 pb-8 pt-3 sm:px-8">{children}</main>
+        <main className="flex-1 overflow-y-auto px-4 pb-8 pt-3 sm:px-8"><div key={pathname} className="page-enter">{children}</div></main>
       </div>
     </div>
   )

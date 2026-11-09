@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock, Copy, Download, FileText, History, Mail, RefreshCw, Save, Trash2, Check, CircleDashed, Lock, CalendarRange } from 'lucide-react'
 import { addWeeks, format } from 'date-fns'
-import { Card, Empty, Segmented } from '../components/ui'
+import { Card, Empty, Num, Segmented } from '../components/ui'
 import { useStore } from '../store/useStore'
 import { compileWeek, generateReportText, reportSubject } from '../lib/report'
 import { fmtRange, fromISO } from '../lib/dates'
@@ -84,7 +84,7 @@ export default function Report() {
         ].map((s) => (
           <div key={s.label} className="card card-pad fade-up flex items-center gap-3">
             <span className={`${s.tone} h-10 w-10`}>{s.icon}</span>
-            <span><span className="num block text-[24px] leading-none">{s.value}</span><span className="block text-xs text-ink-mute dark:text-ink-darkm">{s.label}</span></span>
+            <span><span className="num block text-[24px] leading-none"><Num value={s.value} /></span><span className="block text-xs text-ink-mute dark:text-ink-darkm">{s.label}</span></span>
           </div>
         ))}
       </div>

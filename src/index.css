@@ -143,3 +143,35 @@ body::before {
 /* hairline dividers like iOS grouped lists */
 .hairline > * + * { border-top: 0.5px solid rgba(60,60,67,0.14); }
 .dark .hairline > * + * { border-top-color: rgba(255,255,255,0.1); }
+
+/* ---------- motion ---------- */
+@keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.page-enter { animation: pageIn .45s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+@keyframes sheetIn { from { opacity: 0; transform: translateY(18px) scale(0.965); } to { opacity: 1; transform: none; } }
+.sheet-enter { animation: sheetIn .42s cubic-bezier(0.22, 1.2, 0.36, 1) both; }
+@keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
+.backdrop-enter { animation: backdropIn .3s ease-out both; }
+
+@keyframes pop { 0% { transform: scale(0.6); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.pop { animation: pop .38s cubic-bezier(0.22, 1.2, 0.36, 1) both; }
+@keyframes burst { 0% { transform: scale(0.6); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
+.burst::after { content: ''; position: absolute; inset: -2px; border-radius: 9999px; border: 2px solid #34c759; animation: burst .55s ease-out both; pointer-events: none; }
+
+@keyframes ring { 0%,100% { transform: rotate(0); } 15% { transform: rotate(14deg); } 30% { transform: rotate(-12deg); } 45% { transform: rotate(9deg); } 60% { transform: rotate(-6deg); } 75% { transform: rotate(3deg); } }
+.bell-ring { animation: ring .9s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; transform-origin: 50% 0; }
+
+@keyframes gloss { 0% { transform: translateX(-60%) rotate(12deg); } 100% { transform: translateX(160%) rotate(12deg); } }
+.hero::after { content: ''; position: absolute; top: -40%; left: 0; width: 45%; height: 180%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent); animation: gloss 7s ease-in-out infinite; pointer-events: none; }
+
+.tile { transition: transform .35s cubic-bezier(0.22, 1.2, 0.36, 1), box-shadow .35s; }
+a:hover > .tile, button:hover > .tile, .card:hover > .tile { transform: scale(1.08) rotate(-4deg); }
+
+.nav-item { position: relative; }
+.nav-item.active::before { content: ''; position: absolute; left: -6px; top: 50%; height: 18px; width: 3px; border-radius: 3px; background: currentColor; transform: translateY(-50%); animation: pop .4s cubic-bezier(0.22, 1.2, 0.36, 1) both; }
+
+.row-enter { animation: fadeUp .4s cubic-bezier(0.32, 0.72, 0, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

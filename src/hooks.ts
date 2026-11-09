@@ -74,3 +74,26 @@ export const useMinuteTick = () => {
 }
 
 export const useIsFriday = () => new Date().getDay() === 5
+
+/** Eases a number from its previous value to the new one (for stat tiles). */
+export const useCountUp = (value: number, ms = 700) => {
+  const [shown, setShown] = useState(0)
+  const fromRef = useRef(0)
+  useEffect(() => {
+    const from = fromRef.current, to = value
+    if (from === to) return
+    const start = performance.now()
+    let raf = 0
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - start) / ms)
+      const e = 1 - Math.pow(1 - p, 3)
+      const v = from + (to - from) * e
+      setShown(Number.isInteger(to) && Number.isInteger(from) ? Math.round(v) : Math.round(v * 10) / 10)
+      if (p < 1) raf = requestAnimationFrame(tick)
+      else fromRef.current = to
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, ms])
+  return shown
+}

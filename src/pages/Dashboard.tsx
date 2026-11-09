@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, ArrowRight, CheckCircle2, Flame, FileText, Flag, Loader, Sparkles, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
-import { Card, Empty, ProgressRing } from '../components/ui'
+import { Card, Empty, Num, ProgressRing } from '../components/ui'
 import { QuickAdd } from '../components/tasks/QuickAdd'
 import { TaskCard } from '../components/tasks/TaskCard'
 import { TaskModal } from '../components/tasks/TaskModal'
@@ -16,7 +16,7 @@ const StatCard = ({ icon, label, value, tone, to }: { icon: React.ReactNode; lab
   <Link to={to} className="card card-hover card-pad fade-up flex items-center gap-4">
     <span className={`${tone} h-11 w-11`}>{icon}</span>
     <span>
-      <span className="num block text-[28px] leading-none">{value}</span>
+      <span className="num block text-[28px] leading-none"><Num value={value} /></span>
       <span className="mt-1 block text-xs text-ink-mute dark:text-ink-darkm">{label}</span>
     </span>
   </Link>
@@ -91,7 +91,7 @@ export default function Dashboard() {
           </header>
           <div className="relative flex items-center gap-5">
             <ProgressRing value={today.pct} size={132} stroke={13} color="#ffffff" color2="#dff1ff" track="rgba(255,255,255,0.22)">
-              <span className="num text-[32px] text-white">{today.pct}%</span>
+              <span className="num text-[32px] text-white"><Num value={today.pct} suffix="%" /></span>
               <span className="text-[11px] text-white/75">complete</span>
             </ProgressRing>
             <div className="space-y-3.5">
@@ -101,7 +101,7 @@ export default function Dashboard() {
               </div>
               <div className="flex items-center gap-2.5">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/20 backdrop-blur"><Sparkles size={18} /></span>
-                <span><span className="num block text-lg leading-tight">{score.score}<span className="text-sm text-white/70">/100</span></span><span className="block text-[11px] text-white/75">Productivity score</span></span>
+                <span><span className="num block text-lg leading-tight"><Num value={score.score} /><span className="text-sm text-white/70">/100</span></span><span className="block text-[11px] text-white/75">Productivity score</span></span>
               </div>
               <p className="text-[11px] text-white/70">{score.completion}% completed · {score.onTime}% on time · 7 days</p>
             </div>
@@ -113,7 +113,7 @@ export default function Dashboard() {
               { label: 'Overdue', value: counts.overdue },
             ].map((m) => (
               <div key={m.label} className="rounded-2xl bg-white/15 px-3 py-2 backdrop-blur">
-                <span className="num block text-lg leading-none">{m.value}</span>
+                <span className="num block text-lg leading-none"><Num value={m.value} /></span>
                 <span className="block text-[11px] text-white/75">{m.label}</span>
               </div>
             ))}

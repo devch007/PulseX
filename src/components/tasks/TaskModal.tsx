@@ -13,7 +13,7 @@ const ordinal = (n: number) => `${n}${[1, 21, 31].includes(n) ? 'st' : [2, 22].i
 
 /* ---- building blocks for the property rail ---- */
 const Group = ({ children }: { children: React.ReactNode }) => (
-  <div className="hairline overflow-hidden rounded-2xl bg-black/[0.035] dark:bg-white/[0.05]">{children}</div>
+  <div className="hairline row-enter overflow-hidden rounded-2xl bg-black/[0.035] dark:bg-white/[0.05]">{children}</div>
 )
 const Row = ({ label, children, stack }: { label: string; children: React.ReactNode; stack?: boolean }) => (
   <div className={`flex ${stack ? 'flex-col gap-2' : 'items-center justify-between gap-3'} px-3.5 py-2.5`}>
@@ -118,9 +118,9 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
   const quick: [string, string][] = [['Today', format(new Date(), 'yyyy-MM-dd')], ['Tomorrow', format(addDays(new Date(), 1), 'yyyy-MM-dd')], ['Mon', format(nextMonday(new Date()), 'yyyy-MM-dd')]]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
+    <div className="backdrop-enter fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
       <form id="task-form" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={task ? 'Edit task' : 'New task'}
-        className="sheet card fade-up flex max-h-[94vh] w-full max-w-[920px] flex-col overflow-hidden rounded-b-none !duration-300 sm:rounded-xl3">
+        className="sheet card sheet-enter flex max-h-[94vh] w-full max-w-[920px] flex-col overflow-hidden rounded-b-none sm:rounded-xl3">
         {/* colour accent follows the category */}
         <div className="h-1 w-full" style={{ background: `linear-gradient(90deg, ${cat.color}, ${cat.color}66)` }} />
 
@@ -140,7 +140,7 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
           </div>
 
           {/* ---- right: property rail ---- */}
-          <div className="space-y-3 border-t border-black/[0.06] bg-black/[0.015] p-4 dark:border-white/[0.07] dark:bg-white/[0.02] md:border-l md:border-t-0 md:p-5">
+          <div className="stagger space-y-3 border-t border-black/[0.06] bg-black/[0.015] p-4 dark:border-white/[0.07] dark:bg-white/[0.02] md:border-l md:border-t-0 md:p-5">
             <div className="hidden items-center justify-end md:flex"><button type="button" className="btn-ghost -mr-2 -mt-1 p-1.5" onClick={onClose} aria-label="Close"><X size={18} /></button></div>
             <Group>
               <Row label="Category"><Select value={categoryId} onChange={setCategoryId} dot={cat.color} options={categories.map((c) => ({ value: c.id, label: c.name }))} /></Row>

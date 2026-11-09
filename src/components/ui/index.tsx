@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { useCountUp } from '../../hooks'
 
 export const Card = ({ children, className = '', title, sub, action }: {
   children: ReactNode; className?: string; title?: string; sub?: string; action?: ReactNode
@@ -29,9 +30,9 @@ export const Modal = ({ open, onClose, title, children, wide }: {
   }, [open, onClose])
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
+    <div className="backdrop-enter fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
       <div
-        className={`card sheet w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl3 sm:rounded-xl3 fade-up`}
+        className={`card sheet sheet-enter w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl3 sm:rounded-xl3`}
         onMouseDown={(e) => e.stopPropagation()}
         role="dialog" aria-modal="true" aria-label={title}
       >
@@ -60,12 +61,16 @@ export const Toggle = ({ checked, onChange, label, desc }: { checked: boolean; o
   </label>
 )
 
+export const Num = ({ value, suffix = '' }: { value: number; suffix?: string }) => <>{useCountUp(value)}{suffix}</>
+
 export const ProgressRing = ({ value, size = 120, stroke = 10, children, color = '#0a7aff', color2, track }: {
   value: number; size?: number; stroke?: number; children?: ReactNode; color?: string; color2?: string; track?: string
 }) => {
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
-  const off = c - (Math.max(0, Math.min(100, value)) / 100) * c
+  const [shown, setShown] = useState(0)
+  useEffect(() => { const t = requestAnimationFrame(() => setShown(value)); return () => cancelAnimationFrame(t) }, [value])
+  const off = c - (Math.max(0, Math.min(100, shown)) / 100) * c
   const id = `ring-${color.replace('#', '')}-${(color2 ?? '').replace('#', '')}`
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
@@ -78,7 +83,7 @@ export const ProgressRing = ({ value, size = 120, stroke = 10, children, color =
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={track ?? color} strokeOpacity={track ? 1 : 0.14} strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={`url(#${id})`} strokeWidth={stroke} strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={off} style={{ transition: 'stroke-dashoffset .9s cubic-bezier(0.32,0.72,0,1)', filter: `drop-shadow(0 0 6px ${color}55)` }} />
+          strokeDasharray={c} strokeDashoffset={off} style={{ transition: 'stroke-dashoffset 1.1s cubic-bezier(0.22,1,0.36,1)', filter: `drop-shadow(0 0 6px ${color}55)` }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">{children}</div>
     </div>

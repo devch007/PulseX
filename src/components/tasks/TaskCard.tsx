@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Check, Clock, Lock, Pencil, Trash2 } from 'lucide-react'
 import { categoryOf, useStore } from '../../store/useStore'
 import type { Task } from '../../types'
@@ -14,11 +15,17 @@ export const TaskCard = ({ task, onEdit, compact, highlight }: {
   const cat = categoryOf(cats, task.categoryId)
   const overdue = isOverdue(task.dueAt, task.status)
   const done = task.status === 'done'
+  const [burst, setBurst] = useState(false)
+  const prevDone = useRef(done)
+  useEffect(() => {
+    if (done && !prevDone.current) { setBurst(true); const t = setTimeout(() => setBurst(false), 600); return () => clearTimeout(t) }
+    prevDone.current = done
+  }, [done])
 
   return (
     <article
       id={`task-${task.id}`}
-      className={`group card card-hover relative flex gap-3 rounded-[18px] p-3.5 ${done ? 'opacity-70' : ''} ${
+      className={`group card card-hover relative flex gap-3 rounded-[18px] p-3.5 transition-all duration-500 ${done ? 'opacity-70 saturate-50' : ''} ${
         overdue ? 'border-red-200 dark:border-red-500/40' : ''
       } ${highlight ? 'ring-2 ring-accent/50' : ''}`}
     >
@@ -26,11 +33,11 @@ export const TaskCard = ({ task, onEdit, compact, highlight }: {
       <button
         onClick={() => toggleDone(task.id)}
         aria-label={done ? 'Mark as not done' : 'Mark as done'}
-        className={`mt-0.5 grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border-[1.5px] transition duration-200 ease-apple active:scale-90 ${
+        className={`relative mt-0.5 grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border-[1.5px] transition duration-200 ease-apple active:scale-90 ${burst ? 'burst' : ''} ${
           done ? 'border-[#34c759] bg-[#34c759] text-white' : 'border-black/20 hover:border-accent hover:bg-accent/10 dark:border-white/25'
         }`}
       >
-        {done && <Check size={12} strokeWidth={3} />}
+        {done && <Check size={12} strokeWidth={3} className="pop" />}
       </button>
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-2">

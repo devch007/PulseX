@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronLeft, ChevronRight, Clock, Copy, Download, FileText, History, Mail, RefreshCw, Save, Trash2, Check, CircleDashed, Lock, CalendarRange } from 'lucide-react'
 import { addWeeks, format } from 'date-fns'
 import { Card, Empty, Num, Segmented } from '../components/ui'
@@ -144,9 +145,9 @@ export default function Report() {
         </div>
       </div>
 
-      {viewed && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onMouseDown={() => setViewing(null)}>
-          <div className="card w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5" onMouseDown={(e) => e.stopPropagation()}>
+      {viewed && createPortal(
+        <div className="backdrop-enter fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onMouseDown={() => setViewing(null)}>
+          <div className="card sheet sheet-enter w-full max-w-2xl max-h-[90vh] overflow-y-auto p-5" onMouseDown={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-semibold">{viewed.subject}</h3>
               <div className="flex gap-2">
@@ -156,7 +157,8 @@ export default function Report() {
             </div>
             <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">{viewed.text}</pre>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )

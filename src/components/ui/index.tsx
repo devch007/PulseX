@@ -1,5 +1,6 @@
 import { X } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useCountUp } from '../../hooks'
 
 export const Card = ({ children, className = '', title, sub, action }: {
@@ -29,7 +30,7 @@ export const Modal = ({ open, onClose, title, children, wide }: {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
   if (!open) return null
-  return (
+  return createPortal(
     <div className="backdrop-enter fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
       <div
         className={`card sheet sheet-enter w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-b-xl3 sm:rounded-xl3`}
@@ -42,7 +43,8 @@ export const Modal = ({ open, onClose, title, children, wide }: {
         </div>
         <div className="p-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

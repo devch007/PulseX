@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { AlertTriangle, CalendarDays, Check, ChevronDown, Lock, Trash2, X } from 'lucide-react'
 import { useStore, categoryOf } from '../../store/useStore'
 import type { Priority, RecurrenceFreq, Status, Task } from '../../types'
@@ -117,7 +118,7 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
   }
   const quick: [string, string][] = [['Today', format(new Date(), 'yyyy-MM-dd')], ['Tomorrow', format(addDays(new Date(), 1), 'yyyy-MM-dd')], ['Mon', format(nextMonday(new Date()), 'yyyy-MM-dd')]]
 
-  return (
+  return createPortal(
     <div className="backdrop-enter fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
       <form id="task-form" onSubmit={submit} onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={task ? 'Edit task' : 'New task'}
         className="sheet card sheet-enter flex max-h-[94vh] w-full max-w-[920px] flex-col overflow-hidden rounded-b-none sm:rounded-xl3">
@@ -206,6 +207,7 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
           </div>
         </div>
       </form>
-    </div>
+    </div>,
+    document.body,
   )
 }

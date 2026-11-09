@@ -79,7 +79,7 @@ export const Shell = ({ children, needRefresh, onUpdate }: { children: ReactNode
         <header className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3 sm:px-8 lg:pt-5">
           <button className="btn-ghost p-2 lg:hidden" onClick={() => setOpen(true)} aria-label="Open menu"><Menu size={20} /></button>
           <h1 className="text-[17px] font-semibold tracking-tight">{TITLES[pathname] ?? 'PulseX'}</h1>
-          <div className="ml-auto flex items-center gap-1 rounded-full glass px-1 py-0.5">
+          <div className="relative z-40 ml-auto flex items-center gap-1 rounded-full glass px-1 py-0.5">
             {needRefresh && <button className="btn-soft hidden sm:inline-flex" onClick={onUpdate}>Update available · reload</button>}
             <NotificationBell />
           </div>

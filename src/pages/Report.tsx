@@ -34,7 +34,7 @@ export default function Report() {
     const url = `mailto:${encodeURIComponent(settings.managerEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`
     window.location.href = url
   }
-  const pdf = () => buildReportPdf(data, settings, categories, subject)
+  const pdf = () => buildReportPdf(data, settings, categories, subject, text)
   const save = () => {
     saveReport({
       weekStart: data.range.start.toISOString(), weekEnd: data.range.end.toISOString(), subject, text,

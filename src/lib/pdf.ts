@@ -1,8 +1,7 @@
-import { addDays, format } from 'date-fns'
+import { format } from 'date-fns'
 import type { Category, Settings } from '../types'
 import type { ReportData } from './report'
-import { fmtRange, fromISO, isOverdue } from './dates'
-import { categoryOf } from '../store/useStore'
+import { fmtRange } from './dates'
 
 const hex = (h: string): [number, number, number] => {
   const n = h.replace('#', '')
@@ -14,7 +13,7 @@ const MUTE: [number, number, number] = [142, 142, 147]
 const ACCENT = '#0a7aff'
 
 /** A designed A4 report: header band, stat tiles, coloured section labels, footer. */
-export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Category[], subject: string) => {
+export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Category[], subject: string, text: string) => {
   const { jsPDF } = await import('jspdf')
   const doc = new jsPDF({ unit: 'pt', format: 'a4' })
   const W = 595, Hh = 842, M = 48
@@ -83,40 +82,73 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
     if (meta) { doc.setTextColor(...MUTE); doc.setFontSize(8.5); doc.text(meta, x, y - 3); y += 13 }
     y += 5
   }
-  const subhead = (text: string, color: string) => {
+  const subheadRow = (text: string, color: string) => {
     ensure(22)
     doc.setFillColor(...hex(color)); doc.roundedRect(M + 2, y - 8, 8, 8, 2, 2, 'F')
     doc.setTextColor(...INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5)
     doc.text(text, M + 16, y)
     y += 20
   }
-  const empty = (t: string) => { ensure(18); doc.setTextColor(...SOFT); doc.setFont('helvetica', 'italic'); doc.setFontSize(10); doc.text(t, M + 6, y); y += 16 }
 
-  /* ---- content ---- */
-  section('What I completed', '#34c759')
-  if (!d.byCategory.length) empty('Nothing closed this week.')
-  for (const g of d.byCategory) {
-    subhead(`${g.category.name}  (${g.tasks.length})`, g.category.color)
-    for (const t of g.tasks) bullet(t.title, undefined, g.category.color, 8)
-    y += 8
+  /* ---- content: rendered from the (possibly edited) message text ---- */
+  const strip = (l: string) => l.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, '').replace(/\*/g, '').trim()
+  const colourFor = (t: string) => {
+    const k = t.toLowerCase()
+    if (/complet|done|win/.test(k)) return '#34c759'
+    if (/progress|doing/.test(k)) return '#0a7aff'
+    if (/pending|block|input|support|overdue/.test(k)) return '#ff9500'
+    if (/next week|plan/.test(k)) return '#5e5ce6'
+    return ACCENT
   }
-  y += 10
+  const dotFor = (raw: string) => {
+    if (raw.startsWith('✅')) return '#34c759'
+    if (raw.startsWith('🔄')) return '#0a7aff'
+    if (raw.startsWith('⚠')) return '#ff9500'
+    if (raw.startsWith('⭐')) return '#eda100'
+    if (raw.startsWith('🔒')) return '#ff3b30'
+    return '#9095a8'
+  }
+  const para = (t: string, size = 10.5, color: [number, number, number] = INK) => {
+    const lines = doc.splitTextToSize(t, W - M * 2) as string[]
+    ensure(lines.length * 15 + 6)
+    doc.setTextColor(...color); doc.setFont('helvetica', 'normal'); doc.setFontSize(size)
+    doc.text(lines, M, y, { lineHeightFactor: 1.45 })
+    y += lines.length * 15 + 4
+  }
 
-  section('In progress', '#0a7aff')
-  if (!d.inProgress.length) empty('Nothing in progress right now.')
-  for (const t of d.inProgress) bullet(t.title, `${categoryOf(cats, t.categoryId).name} · expected ${t.dueAt ? format(fromISO(t.dueAt), 'EEE d MMM') : 'TBC'}`, categoryOf(cats, t.categoryId).color)
-  y += 16
+  let current = ACCENT
+  let blank = 0
+  const lines = text.split('\n')
+  lines.forEach((raw, i) => {
+    const line = raw.trim()
+    if (!line) { blank++; if (blank === 1) y += 6; return }
+    blank = 0
+    const clean = strip(line)
+    if (!clean) return
+    const hasEmoji = /^\p{Extended_Pictographic}/u.test(line)
+    const wrappedBold = /^\*[^*]+\*$/.test(line) || (hasEmoji && /\*[^*]+\*\s*$/.test(line))
+    const upper = /^[A-Z][A-Z &·()\-–0-9]+$/.test(line) && line.length > 3
+    const subhead = line.match(/^\*?([^*]+?)\*?\s*\((\d+)\)$/)
 
-  section('Pending & need your input', '#ff9500')
-  if (!d.blocked.length && !d.pending.length) empty('No blockers. All good.')
-  for (const t of d.blocked) bullet(`Blocked: ${t.title}`, t.notes ? `Need: ${t.notes}` : undefined, '#ff3b30')
-  for (const t of d.pending) bullet(t.title, isOverdue(t.dueAt, t.status) ? `Overdue since ${format(fromISO(t.dueAt!), 'd MMM')}` : t.dueAt ? `Due ${format(fromISO(t.dueAt), 'd MMM')}` : undefined, '#ff9500')
-  y += 16
-
-  const nw = { start: addDays(d.range.start, 7), end: addDays(d.range.end, 7) }
-  section(`Plan for next week · ${fmtRange(nw.start, nw.end)}`, '#5e5ce6')
-  if (!d.nextWeek.length) empty('Will plan on Monday.')
-  for (const t of d.nextWeek) bullet(`${format(fromISO(t.dueAt!), 'EEE d')}  ${t.title}`, `${categoryOf(cats, t.categoryId).name}${t.priority === 'high' ? ' · high priority' : ''}`, categoryOf(cats, t.categoryId).color)
+    if (i < 4 && /weekly update/i.test(clean) && (wrappedBold || upper)) return // header already shows it
+    if (subhead && !hasEmoji) {
+      const cat = cats.find((c) => c.name.toLowerCase() === subhead[1].trim().toLowerCase())
+      subheadRow(`${subhead[1].trim()}  (${subhead[2]})`, cat?.color ?? '#9095a8'); return
+    }
+    if ((wrappedBold && (hasEmoji || i > 2)) || upper) { current = colourFor(clean); section(clean, current); return }
+    if (/^[•\-]\s/.test(line)) {
+      const body = strip(line.slice(2))
+      const idx = Math.max(body.lastIndexOf(' – '), body.lastIndexOf(' - '))
+      const head = idx > 0 ? body.slice(0, idx) : body
+      const tail = idx > 0 ? body.slice(idx + 3).trim() : ''
+      const isMeta = tail && tail.length < 60 && (/^(due|overdue|expected|need)/i.test(tail) || /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s\d{1,2}(\s\w{3})?$/.test(tail))
+      if (isMeta) bullet(head, tail, current)
+      else bullet(body, undefined, current)
+      return
+    }
+    if (hasEmoji) { bullet(clean, undefined, dotFor(line)); return }
+    para(clean, i === 0 ? 12 : 10.5, i === 0 ? INK : SOFT)
+  })
 
   footer()
   doc.save(`Weekly_Update_${format(d.range.start, 'yyyy-MM-dd')}_to_${format(d.range.end, 'yyyy-MM-dd')}.pdf`)

@@ -118,13 +118,16 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
 
   let current = ACCENT
   let blank = 0
+  let skipping = false // inside the "At a glance" block (tiles already cover it)
+  let seenSection = false
   const lines = text.split('\n')
   lines.forEach((raw, i) => {
     const line = raw.trim()
-    if (!line) { blank++; if (blank === 1) y += 6; return }
+    if (!line) { blank++; if (blank === 1 && !skipping) y += 6; return }
     blank = 0
     const clean = strip(line)
     if (!clean) return
+    if (i < 3 && /^hi\b|^hello\b|^dear\b/i.test(clean)) return // greeting: PDF has a header instead
     const hasEmoji = /^\p{Extended_Pictographic}/u.test(line)
     const wrappedBold = /^\*[^*]+\*$/.test(line) || (hasEmoji && /\*[^*]+\*\s*$/.test(line))
     const upper = /^[A-Z][A-Z &·()\-–0-9]+$/.test(line) && line.length > 3
@@ -135,19 +138,29 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
       const cat = cats.find((c) => c.name.toLowerCase() === subhead[1].trim().toLowerCase())
       subheadRow(`${subhead[1].trim()}  (${subhead[2]})`, cat?.color ?? '#9095a8'); return
     }
-    if ((wrappedBold && (hasEmoji || i > 2)) || upper) { current = colourFor(clean); section(clean, current); return }
+    if ((wrappedBold && (hasEmoji || i > 2)) || upper) {
+      skipping = /at a glance|summary/i.test(clean)
+      if (skipping) return
+      seenSection = true
+      current = colourFor(clean); section(clean, current); return
+    }
+    if (skipping) return
     if (/^[•\-]\s/.test(line)) {
       const body = strip(line.slice(2))
       const idx = Math.max(body.lastIndexOf(' – '), body.lastIndexOf(' - '))
       const head = idx > 0 ? body.slice(0, idx) : body
       const tail = idx > 0 ? body.slice(idx + 3).trim() : ''
-      const isMeta = tail && tail.length < 60 && (/^(due|overdue|expected|need)/i.test(tail) || /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s\d{1,2}(\s\w{3})?$/.test(tail))
-      if (isMeta) bullet(head, tail, current)
+      const dateOnly = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s\d{1,2}(\s\w{3})?$/.test(tail)
+      const isMeta = tail && tail.length < 60 && /^(due|overdue|expected|need)/i.test(tail)
+      if (dateOnly) bullet(head, undefined, current)
+      else if (isMeta) bullet(head, tail, current)
       else bullet(body, undefined, current)
       return
     }
     if (hasEmoji) { bullet(clean, undefined, dotFor(line)); return }
-    para(clean, i === 0 ? 12 : 10.5, i === 0 ? INK : SOFT)
+    // closing lines and signature after the last section are left out of the PDF
+    if (seenSection && !lines.slice(i + 1).some((l) => /^[•\-]\s|\*[^*]+\*|^[A-Z][A-Z &·()\-–0-9]+$/.test(strip(l.trim()) ? l.trim() : ''))) return
+    para(clean, 10.5, SOFT)
   })
 
   footer()

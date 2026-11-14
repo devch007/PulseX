@@ -82,8 +82,11 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
     if (meta) { doc.setTextColor(...MUTE); doc.setFontSize(8.5); doc.text(meta, x, y - 3); y += 13 }
     y += 5
   }
+  let firstSubhead = true
   const subheadRow = (text: string, color: string) => {
-    ensure(22)
+    if (!firstSubhead) y += 14
+    firstSubhead = false
+    ensure(26)
     doc.setFillColor(...hex(color)); doc.roundedRect(M + 2, y - 8, 8, 8, 2, 2, 'F')
     doc.setTextColor(...INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5)
     doc.text(text, M + 16, y)
@@ -142,6 +145,7 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
       skipping = /at a glance|summary/i.test(clean)
       if (skipping) return
       seenSection = true
+      firstSubhead = true
       current = colourFor(clean); section(clean, current); return
     }
     if (skipping) return

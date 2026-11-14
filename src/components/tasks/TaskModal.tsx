@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AlertTriangle, CalendarDays, Check, ChevronDown, Lock, Trash2, X } from 'lucide-react'
 import { useStore, categoryOf } from '../../store/useStore'
@@ -116,6 +116,12 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
     else addTask({ ...patch, completedAt: status === 'done' ? new Date().toISOString() : undefined })
     onClose()
   }
+  const dateRef = useRef<HTMLInputElement>(null)
+  const openPicker = () => {
+    const el = dateRef.current
+    if (!el) return
+    try { (el as HTMLInputElement & { showPicker?: () => void }).showPicker?.() } catch { el.focus(); el.click() }
+  }
   const quick: [string, string][] = [['Today', format(new Date(), 'yyyy-MM-dd')], ['Tomorrow', format(addDays(new Date(), 1), 'yyyy-MM-dd')], ['Mon', format(nextMonday(new Date()), 'yyyy-MM-dd')]]
 
   return createPortal(
@@ -153,10 +159,11 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
               <Row label="Due" stack>
                 <div className="flex flex-wrap items-center gap-1.5">
                   {quick.map(([l, v]) => <Chip key={l} on={date === v} onClick={() => setDate(date === v ? '' : v)}>{l}</Chip>)}
-                  <label className={`relative inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.06)] ${date && !quick.some(([, v]) => v === date) ? 'bg-accent text-white dark:bg-accent-dark dark:text-[#07111f]' : 'bg-white/90 text-ink-soft dark:bg-white/10 dark:text-ink-darks'}`}>
+                  <button type="button" onClick={openPicker}
+                    className={`relative inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition active:scale-95 ${date && !quick.some(([, v]) => v === date) ? 'bg-accent text-white dark:bg-accent-dark dark:text-[#07111f]' : 'bg-white/90 text-ink-soft hover:bg-white dark:bg-white/10 dark:text-ink-darks'}`}>
                     <CalendarDays size={13} />{date ? format(new Date(date + 'T00:00'), 'd MMM') : 'Pick date'}
-                    <input type="date" className="absolute inset-0 cursor-pointer opacity-0" value={date} onChange={(e) => setDate(e.target.value)} />
-                  </label>
+                    <input ref={dateRef} type="date" tabIndex={-1} aria-label="Due date" className="absolute bottom-0 left-0 h-px w-px opacity-0" value={date} onChange={(e) => setDate(e.target.value)} />
+                  </button>
                   {date && <button type="button" className="ml-auto text-[12px] text-ink-mute hover:text-ink dark:hover:text-ink-darkp" onClick={() => setDate('')}>Clear</button>}
                 </div>
               </Row>

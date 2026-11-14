@@ -51,17 +51,16 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
     ['Completed', String(d.completed.length), '#34c759'],
     ['In progress', String(d.inProgress.length), '#0a7aff'],
     ['Pending / blocked', String(d.pending.length + d.blocked.length), '#ff9500'],
-    ['Hours logged', (Math.round(d.totalMinutes / 6) / 10).toString(), '#5e5ce6'],
   ]
-  const tw = (W - M * 2 - 12 * 3) / 4
+  const tw = (W - M * 2 - 14 * 2) / 3
   tiles.forEach(([label, val, c], i) => {
-    const x = M + i * (tw + 12)
-    doc.setFillColor(246, 247, 251); doc.roundedRect(x, y, tw, 64, 12, 12, 'F')
-    doc.setFillColor(...hex(c)); doc.roundedRect(x + 12, y + 14, 6, 36, 3, 3, 'F')
-    doc.setTextColor(...INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.text(val, x + 28, y + 36)
-    doc.setTextColor(...MUTE); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.text(label, x + 28, y + 52)
+    const x = M + i * (tw + 14)
+    doc.setFillColor(246, 247, 251); doc.roundedRect(x, y, tw, 76, 14, 14, 'F')
+    doc.setFillColor(...hex(c)); doc.roundedRect(x + 16, y + 18, 6, 40, 3, 3, 'F')
+    doc.setTextColor(...INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(26); doc.text(val, x + 34, y + 42)
+    doc.setTextColor(...MUTE); doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(label, x + 34, y + 60)
   })
-  y += 92
+  y += 112
 
   /* ---- helpers ---- */
   const section = (title: string, color = ACCENT) => {
@@ -69,27 +68,27 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
     doc.setFillColor(...hex(color)); doc.roundedRect(M, y - 9, 4, 14, 2, 2, 'F')
     doc.setTextColor(...hex(color)); doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5)
     doc.text(title.toUpperCase(), M + 12, y + 2, { charSpace: 1 })
-    y += 18
+    y += 20
     doc.setDrawColor(233, 235, 242); doc.setLineWidth(0.6); doc.line(M, y - 6, W - M, y - 6)
-    y += 6
+    y += 12
   }
   const bullet = (text: string, meta?: string, color = '#9095a8', indent = 0) => {
     const x = M + 14 + indent
     const lines = doc.splitTextToSize(text, W - M - x - 6) as string[]
-    ensure(lines.length * 14 + (meta ? 12 : 0) + 6)
-    doc.setFillColor(...hex(color)); doc.circle(x - 8, y - 3.5, 2.4, 'F')
+    ensure(lines.length * 16 + (meta ? 13 : 0) + 8)
+    doc.setFillColor(...hex(color)); doc.circle(x - 8, y - 3.5, 2.6, 'F')
     doc.setTextColor(...INK); doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5)
-    doc.text(lines, x, y)
-    y += lines.length * 14
-    if (meta) { doc.setTextColor(...MUTE); doc.setFontSize(8.5); doc.text(meta, x, y - 2); y += 12 }
-    y += 2
+    doc.text(lines, x, y, { lineHeightFactor: 1.45 })
+    y += lines.length * 16
+    if (meta) { doc.setTextColor(...MUTE); doc.setFontSize(8.5); doc.text(meta, x, y - 3); y += 13 }
+    y += 5
   }
   const subhead = (text: string, color: string) => {
     ensure(22)
     doc.setFillColor(...hex(color)); doc.roundedRect(M + 2, y - 8, 8, 8, 2, 2, 'F')
     doc.setTextColor(...INK); doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5)
     doc.text(text, M + 16, y)
-    y += 16
+    y += 20
   }
   const empty = (t: string) => { ensure(18); doc.setTextColor(...SOFT); doc.setFont('helvetica', 'italic'); doc.setFontSize(10); doc.text(t, M + 6, y); y += 16 }
 
@@ -98,21 +97,21 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
   if (!d.byCategory.length) empty('Nothing closed this week.')
   for (const g of d.byCategory) {
     subhead(`${g.category.name}  (${g.tasks.length})`, g.category.color)
-    for (const t of g.tasks) bullet(t.title, t.completedAt ? format(fromISO(t.completedAt), 'EEEE d MMM') + (t.timeSpent ? ` · ${t.timeSpent} min` : '') : undefined, g.category.color, 8)
-    y += 4
+    for (const t of g.tasks) bullet(t.title, undefined, g.category.color, 8)
+    y += 8
   }
-  y += 6
+  y += 10
 
   section('In progress', '#0a7aff')
   if (!d.inProgress.length) empty('Nothing in progress right now.')
   for (const t of d.inProgress) bullet(t.title, `${categoryOf(cats, t.categoryId).name} · expected ${t.dueAt ? format(fromISO(t.dueAt), 'EEE d MMM') : 'TBC'}`, categoryOf(cats, t.categoryId).color)
-  y += 10
+  y += 16
 
   section('Pending & need your input', '#ff9500')
   if (!d.blocked.length && !d.pending.length) empty('No blockers. All good.')
   for (const t of d.blocked) bullet(`Blocked: ${t.title}`, t.notes ? `Need: ${t.notes}` : undefined, '#ff3b30')
   for (const t of d.pending) bullet(t.title, isOverdue(t.dueAt, t.status) ? `Overdue since ${format(fromISO(t.dueAt!), 'd MMM')}` : t.dueAt ? `Due ${format(fromISO(t.dueAt), 'd MMM')}` : undefined, '#ff9500')
-  y += 10
+  y += 16
 
   const nw = nextWorkWeek(d.range.start)
   section(`Plan for next week · ${fmtRange(nw.start, nw.end)}`, '#5e5ce6')

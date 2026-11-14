@@ -14,12 +14,19 @@ export const endOfToday = () => endOfDay(new Date())
 
 export const weekStart = (d = new Date()) => startOfWeek(d, WEEK_OPTS)
 export const weekEnd = (d = new Date()) => endOfWeek(d, WEEK_OPTS)
-/** Monday → Friday of the week containing d */
-export const workWeek = (d = new Date()) => {
-  const mon = weekStart(d)
-  return { start: mon, end: endOfDay(addDays(mon, 4)) }
+/** Index of the last working day in a Mon-first week (Mon=0 … Sun=6). Defaults to Saturday. */
+export const lastWorkingOffset = (workingDays: number[] = [1, 2, 3, 4, 5, 6]) => {
+  const offs = workingDays.map((d) => (d === 0 ? 6 : d - 1))
+  return offs.length ? Math.max(...offs) : 5
 }
-export const nextWorkWeek = (d = new Date()) => workWeek(addWeeks(d, 1))
+/** Monday → last working day of the week containing d */
+export const workWeek = (d = new Date(), workingDays?: number[]) => {
+  const mon = weekStart(d)
+  return { start: mon, end: endOfDay(addDays(mon, lastWorkingOffset(workingDays))) }
+}
+export const nextWorkWeek = (d = new Date(), workingDays?: number[]) => workWeek(addWeeks(d, 1), workingDays)
+/** True on the last working day of the week (the day to send the report) */
+export const isReportDay = (workingDays?: number[], d = new Date()) => differenceInCalendarDays(d, weekStart(d)) === lastWorkingOffset(workingDays)
 
 export const isOverdue = (dueAt?: string, status?: string) =>
   !!dueAt && status !== 'done' && isBefore(fromISO(dueAt), new Date())

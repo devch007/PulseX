@@ -71,7 +71,7 @@ export default function Welcome() {
               <div className="stagger grid gap-3 sm:grid-cols-3">
                 {[
                   { t: 'See your day', d: 'Progress ring, streaks and what is due next.', tile: 'tile-blue', icon: <BarChart3 size={18} /> },
-                  { t: 'Friday in one click', d: 'A polished weekly update for your manager or team.', tile: 'tile-purple', icon: <FileText size={18} /> },
+                  { t: 'Weekly report in one click', d: 'A polished update for your manager or team.', tile: 'tile-purple', icon: <FileText size={18} /> },
                   { t: 'Never miss a deadline', d: 'Gentle reminders before things are due.', tile: 'tile-orange', icon: <BellRing size={18} /> },
                 ].map((f) => (
                   <div key={f.t} className="card fade-up p-4">
@@ -144,7 +144,7 @@ export default function Welcome() {
                 {[
                   ['Before a task is due', `${settings.notifications.defaultReminderMinutes} minutes ahead by default`],
                   ['Morning summary', `${settings.notifications.morningTime} on working days`],
-                  ['Friday report nudge', `${settings.notifications.fridayTime} every Friday`],
+                  ['Weekly report nudge', `${settings.notifications.fridayTime} on your last working day`],
                 ].map(([t, d]) => (
                   <div key={t} className="flex items-center gap-3 px-3 py-2.5">
                     <Check size={16} className="text-[#34c759]" />

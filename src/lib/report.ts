@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import type { Category, Settings, Task } from '../types'
 import { fmtRange, inRange, isOverdue, nextWorkWeek, workWeek, fromISO, weekEnd } from './dates'
 import { categoryOf } from '../store/useStore'
@@ -14,9 +14,9 @@ export interface ReportData {
   totalMinutes: number
 }
 
-export const compileWeek = (tasks: Task[], cats: Category[], ref = new Date()): ReportData => {
-  const range = workWeek(ref)
-  const next = nextWorkWeek(ref)
+export const compileWeek = (tasks: Task[], cats: Category[], ref = new Date(), workingDays?: number[]): ReportData => {
+  const range = workWeek(ref, workingDays)
+  const next = nextWorkWeek(ref, workingDays)
   const completed = tasks
     .filter((t) => t.status === 'done' && inRange(t.completedAt, range.start, range.end))
     .sort((a, b) => fromISO(a.completedAt!).getTime() - fromISO(b.completedAt!).getTime())
@@ -67,7 +67,7 @@ export const generateReportText = (d: ReportData, settings: Settings, cats: Cate
   const who = greetingName(settings.managerName)
   const areas = d.byCategory.length
   const highDone = d.completed.filter((t) => t.priority === 'high')
-  const nw = nextWorkWeek(d.range.start)
+  const nw = { start: addDays(d.range.start, 7), end: addDays(d.range.end, 7) }
 
   L.push(`Hi ${who || 'there'}${wa ? ' 👋' : ','}`, '')
   L.push(B(`Weekly update · ${shortRange(d.range.start, d.range.end)}`), '')

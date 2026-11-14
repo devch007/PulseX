@@ -12,7 +12,7 @@ import { CategoryTag } from '../components/tasks/Badges'
 export default function Report() {
   const { tasks, categories, settings, reports, saveReport, deleteReport } = useStore()
   const [ref, setRef] = useState(new Date())
-  const data = useMemo(() => compileWeek(tasks, categories, ref), [tasks, categories, ref])
+  const data = useMemo(() => compileWeek(tasks, categories, ref, settings.workingDays), [tasks, categories, ref, settings.workingDays])
   const [fmt, setFmt] = useState<ReportFormat>(() => (localStorage.getItem('pulsex-report-format') as ReportFormat) || 'whatsapp')
   const generated = useMemo(() => generateReportText(data, settings, categories, fmt), [data, settings, categories, fmt])
   const [text, setText] = useState(generated)

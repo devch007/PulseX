@@ -9,7 +9,7 @@ import { TaskModal } from '../components/tasks/TaskModal'
 import { CategoryDonut, Legend, WeekBarChart } from '../components/charts'
 import { useStore } from '../store/useStore'
 import { categoryBreakdown, productivityScore, streak, todayStats, upNext, weekCounts, weekSeries } from '../lib/stats'
-import { useIsFriday, useMinuteTick } from '../hooks'
+import { useIsReportDay, useMinuteTick } from '../hooks'
 import type { Task } from '../types'
 
 const StatCard = ({ icon, label, value, tone, to }: { icon: React.ReactNode; label: string; value: number; tone: string; to: string }) => (
@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [editing, setEditing] = useState<Task | null>(null)
   const [modal, setModal] = useState(false)
   const [defaults, setDefaults] = useState<Partial<Task>>()
-  const isFriday = useIsFriday()
+  const isFriday = useIsReportDay()
   const hasSamples = tasks.some((t) => t.sample)
 
   const today = useMemo(() => todayStats(tasks), [tasks])

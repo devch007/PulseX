@@ -1,6 +1,6 @@
 import { format, isSameDay } from 'date-fns'
 import type { Alert, Settings, Task } from '../types'
-import { fromISO, isOverdue } from './dates'
+import { fromISO, isOverdue, isReportDay } from './dates'
 
 export type Permission = 'granted' | 'denied' | 'default' | 'unsupported'
 
@@ -120,7 +120,7 @@ export const runScheduler = ({ tasks, settings, hasFired, markFired, pushAlert }
     })
   }
 
-  if (n.fridayReminder && now.getDay() === 5 && timeMatched(n.fridayTime)) {
+  if (n.fridayReminder && isReportDay(settings.workingDays, now) && timeMatched(n.fridayTime)) {
     void emit(`friday:${todayKey()}`, 'friday', {
       title: 'Weekly report reminder',
       body: `Your weekly update${settings.managerName ? ` for ${settings.managerName}` : ''} is ready to review and send.`,

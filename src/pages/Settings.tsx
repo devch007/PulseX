@@ -141,7 +141,7 @@ export default function Settings() {
             <input type="time" className="input w-32" value={n.morningTime} onChange={(e) => updateNotificationSettings({ morningTime: e.target.value })} />
           </div>
           <div className="flex items-center justify-between gap-4 py-2">
-            <Toggle checked={n.fridayReminder} onChange={(v) => updateNotificationSettings({ fridayReminder: v })} label="Friday report reminder" desc="Nudge to review and send the weekly update" />
+            <Toggle checked={n.fridayReminder} onChange={(v) => updateNotificationSettings({ fridayReminder: v })} label="Weekly report reminder" desc="On your last working day, a nudge to review and send the update" />
             <input type="time" className="input w-32" value={n.fridayTime} onChange={(e) => updateNotificationSettings({ fridayTime: e.target.value })} />
           </div>
         </div>

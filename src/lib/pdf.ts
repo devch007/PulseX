@@ -1,7 +1,7 @@
-import { format } from 'date-fns'
+import { addDays, format } from 'date-fns'
 import type { Category, Settings } from '../types'
 import type { ReportData } from './report'
-import { fmtRange, fromISO, nextWorkWeek, isOverdue } from './dates'
+import { fmtRange, fromISO, isOverdue } from './dates'
 import { categoryOf } from '../store/useStore'
 
 const hex = (h: string): [number, number, number] => {
@@ -113,7 +113,7 @@ export const buildReportPdf = async (d: ReportData, settings: Settings, cats: Ca
   for (const t of d.pending) bullet(t.title, isOverdue(t.dueAt, t.status) ? `Overdue since ${format(fromISO(t.dueAt!), 'd MMM')}` : t.dueAt ? `Due ${format(fromISO(t.dueAt), 'd MMM')}` : undefined, '#ff9500')
   y += 16
 
-  const nw = nextWorkWeek(d.range.start)
+  const nw = { start: addDays(d.range.start, 7), end: addDays(d.range.end, 7) }
   section(`Plan for next week · ${fmtRange(nw.start, nw.end)}`, '#5e5ce6')
   if (!d.nextWeek.length) empty('Will plan on Monday.')
   for (const t of d.nextWeek) bullet(`${format(fromISO(t.dueAt!), 'EEE d')}  ${t.title}`, `${categoryOf(cats, t.categoryId).name}${t.priority === 'high' ? ' · high priority' : ''}`, categoryOf(cats, t.categoryId).color)

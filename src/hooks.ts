@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { registerSW } from 'virtual:pwa-register'
 import { useStore } from './store/useStore'
 import { runScheduler } from './lib/notifications'
+import { isReportDay } from './lib/dates'
 
 /** Applies the theme to <html> and follows the OS when set to "system". */
 export const useTheme = () => {
@@ -73,7 +74,7 @@ export const useMinuteTick = () => {
   }, [])
 }
 
-export const useIsFriday = () => new Date().getDay() === 5
+export const useIsReportDay = () => isReportDay(useStore((s) => s.settings.workingDays))
 
 /** Eases a number from its previous value to the new one (for stat tiles). */
 export const useCountUp = (value: number, ms = 700) => {

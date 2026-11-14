@@ -95,6 +95,12 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
+  const dateRef = useRef<HTMLInputElement>(null)
+  const openPicker = () => {
+    const el = dateRef.current
+    if (!el) return
+    try { (el as HTMLInputElement & { showPicker?: () => void }).showPicker?.() } catch { el.focus(); el.click() }
+  }
   const cat = categoryOf(categories, categoryId)
   const preview = useMemo<Task>(() => ({
     id: task?.id ?? 'preview', title: title || 'Untitled task', notes: notes || undefined, categoryId, priority, status,
@@ -115,12 +121,6 @@ export const TaskModal = ({ task, open, onClose, defaults }: {
     if (task) updateTask(task.id, { ...patch, completedAt: status === 'done' ? task.completedAt ?? new Date().toISOString() : undefined })
     else addTask({ ...patch, completedAt: status === 'done' ? new Date().toISOString() : undefined })
     onClose()
-  }
-  const dateRef = useRef<HTMLInputElement>(null)
-  const openPicker = () => {
-    const el = dateRef.current
-    if (!el) return
-    try { (el as HTMLInputElement & { showPicker?: () => void }).showPicker?.() } catch { el.focus(); el.click() }
   }
   const quick: [string, string][] = [['Today', format(new Date(), 'yyyy-MM-dd')], ['Tomorrow', format(addDays(new Date(), 1), 'yyyy-MM-dd')], ['Mon', format(nextMonday(new Date()), 'yyyy-MM-dd')]]
 

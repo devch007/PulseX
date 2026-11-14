@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronLeft, ChevronRight, Clock, Copy, Download, FileText, History, Mail, RefreshCw, Save, Trash2, Check, CircleDashed, Lock, CalendarRange } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Clock, Copy, Download, FileText, History, Mail, RefreshCw, Save, Trash2, Check, CircleDashed, Lock, CalendarRange, MessageCircle } from 'lucide-react'
 import { addWeeks, format } from 'date-fns'
 import { Card, Empty, Num, Segmented } from '../components/ui'
 import { useStore } from '../store/useStore'
-import { compileWeek, generateReportText, reportSubject } from '../lib/report'
+import { compileWeek, generateReportText, reportSubject, type ReportFormat } from '../lib/report'
+import { buildReportPdf } from '../lib/pdf'
 import { fmtRange, fromISO } from '../lib/dates'
 import { CategoryTag } from '../components/tasks/Badges'
 
@@ -12,7 +13,8 @@ export default function Report() {
   const { tasks, categories, settings, reports, saveReport, deleteReport } = useStore()
   const [ref, setRef] = useState(new Date())
   const data = useMemo(() => compileWeek(tasks, categories, ref), [tasks, categories, ref])
-  const generated = useMemo(() => generateReportText(data, settings, categories), [data, settings, categories])
+  const [fmt, setFmt] = useState<ReportFormat>(() => (localStorage.getItem('pulsex-report-format') as ReportFormat) || 'whatsapp')
+  const generated = useMemo(() => generateReportText(data, settings, categories, fmt), [data, settings, categories, fmt])
   const [text, setText] = useState(generated)
   const [subject, setSubject] = useState(reportSubject(data))
   const [dirty, setDirty] = useState(false)
@@ -26,30 +28,13 @@ export default function Report() {
     await navigator.clipboard.writeText(text)
     setCopied(true); setTimeout(() => setCopied(false), 1800)
   }
+  const whatsapp = () => window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener')
+  const changeFmt = (f: ReportFormat) => { setFmt(f); localStorage.setItem('pulsex-report-format', f); setDirty(false) }
   const email = () => {
     const url = `mailto:${encodeURIComponent(settings.managerEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`
     window.location.href = url
   }
-  const pdf = async () => {
-    const { jsPDF } = await import('jspdf')
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' })
-    const margin = 56, width = 595 - margin * 2
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(15)
-    doc.text(subject, margin, 64)
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(110)
-    doc.text(`${settings.userName || 'Weekly update'} · generated ${format(new Date(), 'd MMM yyyy, h:mm a')}`, margin, 82)
-    doc.setTextColor(20); doc.setFontSize(10.5)
-    const lines = doc.splitTextToSize(text, width) as string[]
-    let y = 110
-    for (const line of lines) {
-      if (y > 790) { doc.addPage(); y = 64 }
-      const isHeading = /^[A-Z][A-Z /–()\-0-9]+$/.test(line.trim()) && line.trim().length > 3
-      doc.setFont('helvetica', isHeading ? 'bold' : 'normal')
-      doc.text(line, margin, y)
-      y += isHeading ? 17 : 14.5
-    }
-    doc.save(`Weekly_Update_${format(data.range.start, 'yyyy-MM-dd')}_to_${format(data.range.end, 'yyyy-MM-dd')}.pdf`)
-  }
+  const pdf = () => buildReportPdf(data, settings, categories, subject)
   const save = () => {
     saveReport({
       weekStart: data.range.start.toISOString(), weekEnd: data.range.end.toISOString(), subject, text,
@@ -69,10 +54,11 @@ export default function Report() {
         </div>
         <button className="btn-ghost text-xs" onClick={() => { setRef(new Date()); setDirty(false) }}>This week</button>
         <div className="ml-auto flex flex-wrap gap-2">
-          <button className="btn-outline" onClick={copy}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? 'Copied' : 'Copy to clipboard'}</button>
-          <button className="btn-outline" onClick={email} title={settings.managerEmail ? `To ${settings.managerEmail}` : 'Set your manager email in Settings'}><Mail size={15} /> Open in email</button>
-          <button className="btn-outline" onClick={pdf}><Download size={15} /> Download as PDF</button>
-          <button className="btn-primary" onClick={save}><Save size={15} /> Save to history</button>
+          <button className="btn-primary" onClick={copy}>{copied ? <Check size={15} /> : <Copy size={15} />}{copied ? 'Copied!' : 'Copy message'}</button>
+          <button className="btn-outline !text-[#1faa59]" onClick={whatsapp} title="Opens WhatsApp with the message ready to send"><MessageCircle size={15} /> WhatsApp</button>
+          <button className="btn-outline" onClick={pdf}><Download size={15} /> PDF</button>
+          <button className="btn-ghost" onClick={email} title={settings.managerEmail ? `To ${settings.managerEmail}` : 'Set your manager email in Settings'}><Mail size={15} /> Email</button>
+          <button className="btn-ghost" onClick={save}><Save size={15} /> Save</button>
         </div>
       </div>
 
@@ -95,8 +81,11 @@ export default function Report() {
           action={<button className="btn-ghost text-xs" onClick={regenerate} title="Discard edits and regenerate from tasks"><RefreshCw size={13} /> Regenerate</button>}>
           <label className="label">Subject</label>
           <input className="input mb-3" value={subject} onChange={(e) => { setSubject(e.target.value); setDirty(true) }} />
-          <div className="mb-2 flex items-center justify-between">
-            <label className="label !mb-0">Message</label>
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <label className="label !mb-0">Message</label>
+              <Segmented value={fmt} onChange={changeFmt} options={[{ value: 'whatsapp', label: <span className="flex items-center gap-1"><MessageCircle size={12} />WhatsApp</span> }, { value: 'plain', label: 'Plain text' }]} />
+            </div>
             <Segmented value={view} onChange={setView} options={[{ value: 'preview', label: 'Preview' }, { value: 'edit', label: 'Edit' }]} />
           </div>
           {view === 'edit' ? (
@@ -104,7 +93,7 @@ export default function Report() {
           ) : (
             <div className="rounded-2xl bg-white/70 p-6 shadow-[inset_0_0_0_1px_rgba(60,60,67,0.08)] dark:bg-white/[0.04] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]" onDoubleClick={() => setView('edit')}>
               <MessagePreview text={text} />
-              <p className="mt-4 text-[11px] text-ink-mute dark:text-ink-darkm">Double-click to edit. This is exactly what gets copied or emailed as plain text.</p>
+              <p className="mt-4 text-[11px] text-ink-mute dark:text-ink-darkm">Double-click to edit. Copy pastes exactly this into WhatsApp, where *bold* renders as bold.</p>
             </div>
           )}
           {dirty && <p className="mt-2 text-[11px] text-ink-mute dark:text-ink-darkm">You have edited this report. Regenerate to rebuild it from your tasks.</p>}
@@ -165,21 +154,22 @@ export default function Report() {
 }
 
 
-/** Renders the plain-text report with light typographic structure. */
+/** Renders the message the way WhatsApp will show it: *bold*, emoji markers, bullets. */
+const Inline = ({ t }: { t: string }) => (
+  <>{t.split(/(\*[^*]+\*)/g).map((part, i) => part.startsWith('*') && part.endsWith('*') && part.length > 2 ? <b key={i} className="font-semibold text-ink dark:text-ink-darkp">{part.slice(1, -1)}</b> : <span key={i}>{part}</span>)}</>
+)
 const MessagePreview = ({ text }: { text: string }) => {
   const lines = text.split('\n')
+  const isHeading = (l: string) => /^(\p{Extended_Pictographic}|[📊🏆🔄⚠️📅⏱⭐✅])/u.test(l) && /\*[^*]+\*/.test(l) || (/^[A-Z][A-Z &·()\-–0-9]+$/.test(l.trim()) && l.trim().length > 3)
   return (
-    <div className="space-y-1 text-[14px] leading-relaxed">
+    <div className="mx-auto max-w-[560px] space-y-[3px] text-[14.5px] leading-[1.55]">
       {lines.map((l, i) => {
-        if (/^─+$/.test(l.trim())) return <div key={i} className="mb-2 h-px bg-black/10 dark:bg-white/10" />
-        if (/^[A-Z][A-Z &·\-–0-9]+$/.test(l.trim()) && l.trim().length > 3) return <p key={i} className="mt-5 text-[11px] font-bold uppercase tracking-[0.14em] text-accent dark:text-accent-dark">{l}</p>
-        if (/^\d+\. /.test(l)) return <p key={i} className="mt-2 font-semibold">{l}</p>
-        if (/^\s{3}• /.test(l)) return <p key={i} className="pl-7 text-ink-soft dark:text-ink-darks">• {l.replace(/^\s{3}• /, '')}</p>
-        if (/^\s{3}\S/.test(l)) return <p key={i} className="pl-5 text-[13px] text-ink-mute dark:text-ink-darkm">{l.trim()}</p>
-        if (/^• /.test(l)) return <p key={i} className="pl-2">{l}</p>
-        if (/^[✔◐!⏱★]\s/.test(l)) return <p key={i} className="flex gap-2"><span className="w-4 text-center text-accent dark:text-accent-dark">{l[0]}</span><span>{l.slice(1).trim()}</span></p>
-        if (!l.trim()) return <div key={i} className="h-2" />
-        return <p key={i}>{l}</p>
+        if (!l.trim()) return <div key={i} className="h-2.5" />
+        if (isHeading(l)) return <p key={i} className="mt-3 text-[13px] font-bold uppercase tracking-wide text-accent first:mt-0 dark:text-accent-dark"><Inline t={l} /></p>
+        if (/^• /.test(l)) return <p key={i} className="flex gap-2 pl-1"><span className="text-ink-mute">•</span><span className="text-ink-soft dark:text-ink-darks"><Inline t={l.slice(2)} /></span></p>
+        if (/^\*[^*]+\*\s*\(\d+\)$/.test(l.trim())) return <p key={i} className="mt-2 font-semibold"><Inline t={l} /></p>
+        if (/^(✅|🔄|⚠️|⏱|⭐|-)\s/.test(l)) return <p key={i} className="flex gap-2"><span className="w-5">{l.split(' ')[0]}</span><span><Inline t={l.slice(l.indexOf(' ') + 1)} /></span></p>
+        return <p key={i}><Inline t={l} /></p>
       })}
     </div>
   )

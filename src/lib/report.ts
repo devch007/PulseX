@@ -46,56 +46,68 @@ const fmtHours = (min: number) => {
 
 export const reportSubject = (d: ReportData) => `Weekly Update – ${fmtRange(d.range.start, d.range.end)}`
 
-const line = (ch = '─', n = 34) => ch.repeat(n)
-const H = (t: string) => [t.toUpperCase(), line()]
+export type ReportFormat = 'whatsapp' | 'plain'
 
-export const generateReportText = (d: ReportData, settings: Settings, cats: Category[]): string => {
+/** Greeting that copes with titles such as "Dr. Sharma" or "Mr Rao". */
+const greetingName = (full: string) => {
+  const parts = full.trim().split(/\s+/)
+  if (!parts[0]) return ''
+  const isTitle = /^(dr|mr|mrs|ms|sir|madam|prof|ca)\.?$/i.test(parts[0])
+  return isTitle ? parts.slice(0, 2).join(' ') : parts[0]
+}
+
+const shortRange = (a: Date, b: Date) =>
+  a.getMonth() === b.getMonth() ? `${format(a, 'd')}–${format(b, 'd MMM yyyy')}` : fmtRange(a, b)
+
+export const generateReportText = (d: ReportData, settings: Settings, cats: Category[], fmt: ReportFormat = 'whatsapp'): string => {
+  const wa = fmt === 'whatsapp'
+  const B = (t: string) => (wa ? `*${t}*` : t.toUpperCase())
+  const H = (emoji: string, t: string) => (wa ? `${emoji} *${t}*` : t.toUpperCase())
   const L: string[] = []
-  const first = settings.managerName ? settings.managerName.split(' ')[0] : ''
+  const who = greetingName(settings.managerName)
   const areas = d.byCategory.length
   const highDone = d.completed.filter((t) => t.priority === 'high')
-
-  L.push(`Hi ${first || 'there'},`, '')
-  L.push(`Sharing my weekly update for ${fmtRange(d.range.start, d.range.end)}.`, '')
-
-  // At-a-glance block
-  L.push(...H('At a glance'))
-  L.push(`✔  Completed: ${d.completed.length} task${d.completed.length === 1 ? '' : 's'} across ${areas} area${areas === 1 ? '' : 's'}`)
-  L.push(`◐  In progress: ${d.inProgress.length}`)
-  L.push(`!  Pending / blocked: ${d.pending.length + d.blocked.length}`)
-  if (d.totalMinutes) L.push(`⏱  Time logged: ${fmtHours(d.totalMinutes)}`)
-  if (highDone.length) L.push(`★  High-priority items closed: ${highDone.map((t) => t.title).slice(0, 3).join('; ')}${highDone.length > 3 ? '…' : ''}`)
-  L.push('')
-
-  L.push(...H('Key accomplishments'))
-  if (d.byCategory.length === 0) L.push('• None recorded this week.')
-  d.byCategory.forEach((g, gi) => {
-    L.push(`${gi + 1}. ${g.category.name} (${g.tasks.length})`)
-    for (const t of g.tasks) L.push(`   • ${t.title}${t.completedAt ? ` — ${format(fromISO(t.completedAt), 'EEE d MMM')}` : ''}`)
-  })
-  L.push('')
-
-  L.push(...H('In progress'))
-  if (d.inProgress.length === 0) L.push('• Nothing currently in progress.')
-  for (const t of d.inProgress)
-    L.push(`• ${t.title}`, `   ${categoryOf(cats, t.categoryId).name} · expected ${t.dueAt ? format(fromISO(t.dueAt), 'EEE d MMM') : 'TBC'}${t.timeSpent ? ` · ${fmtHours(t.timeSpent)} so far` : ''}`)
-  L.push('')
-
-  L.push(...H('Pending & support needed'))
-  if (d.blocked.length === 0 && d.pending.length === 0) L.push('• No blockers at the moment.')
-  for (const t of d.blocked) L.push(`• [BLOCKED] ${t.title}`, `   Need: ${t.notes ?? 'your input to proceed'}`)
-  for (const t of d.pending)
-    L.push(`• ${t.title}${isOverdue(t.dueAt, t.status) ? ` — overdue since ${format(fromISO(t.dueAt!), 'd MMM')}` : t.dueAt ? ` — due ${format(fromISO(t.dueAt), 'd MMM')}` : ''}`)
-  L.push('')
-
   const nw = nextWorkWeek(d.range.start)
-  L.push(...H(`Plan for next week · ${fmtRange(nw.start, nw.end)}`))
-  if (d.nextWeek.length === 0) L.push('• To be planned.')
-  for (const t of d.nextWeek)
-    L.push(`• ${format(fromISO(t.dueAt!), 'EEE d')} — ${t.title} (${categoryOf(cats, t.categoryId).name})${t.priority === 'high' ? ' ★' : ''}`)
+
+  L.push(`Hi ${who || 'there'}${wa ? ' 👋' : ','}`, '')
+  L.push(B(`Weekly update · ${shortRange(d.range.start, d.range.end)}`), '')
+
+  L.push(H('📊', 'At a glance'))
+  L.push(`${wa ? '✅' : '-'} Completed: ${d.completed.length} task${d.completed.length === 1 ? '' : 's'} across ${areas} area${areas === 1 ? '' : 's'}`)
+  L.push(`${wa ? '🔄' : '-'} In progress: ${d.inProgress.length}`)
+  L.push(`${wa ? '⚠️' : '-'} Pending / blocked: ${d.pending.length + d.blocked.length}`)
+  if (d.totalMinutes) L.push(`${wa ? '⏱' : '-'} Time logged: ${fmtHours(d.totalMinutes)}`)
+  if (highDone.length) L.push(`${wa ? '⭐' : '-'} Big wins: ${highDone.map((t) => t.title).slice(0, 3).join(', ')}${highDone.length > 3 ? '…' : ''}`)
   L.push('')
 
-  L.push('Happy to walk through any of these in more detail.', '')
-  L.push('Best regards,', settings.userName || '[Your name]')
+  L.push(H('🏆', 'What I completed'))
+  if (d.byCategory.length === 0) L.push('• Nothing closed this week.')
+  for (const g of d.byCategory) {
+    L.push(`${B(g.category.name)} (${g.tasks.length})`)
+    for (const t of g.tasks) L.push(`• ${t.title}${t.completedAt ? ` – ${format(fromISO(t.completedAt), 'EEE d')}` : ''}`)
+  }
+  L.push('')
+
+  L.push(H('🔄', 'In progress'))
+  if (d.inProgress.length === 0) L.push('• Nothing in progress right now.')
+  for (const t of d.inProgress)
+    L.push(`• ${t.title} – ${categoryOf(cats, t.categoryId).name}, expected ${t.dueAt ? format(fromISO(t.dueAt), 'EEE d MMM') : 'TBC'}`)
+  L.push('')
+
+  L.push(H('⚠️', 'Pending & need your input'))
+  if (d.blocked.length === 0 && d.pending.length === 0) L.push('• No blockers. All good.')
+  for (const t of d.blocked) L.push(`• ${wa ? '🔒 ' : '[BLOCKED] '}${t.title}${t.notes ? ` – ${t.notes}` : ''}`)
+  for (const t of d.pending)
+    L.push(`• ${t.title}${isOverdue(t.dueAt, t.status) ? ` – overdue since ${format(fromISO(t.dueAt!), 'd MMM')}` : t.dueAt ? ` – due ${format(fromISO(t.dueAt), 'd MMM')}` : ''}`)
+  L.push('')
+
+  L.push(H('📅', `Plan for next week (${shortRange(nw.start, nw.end)})`))
+  if (d.nextWeek.length === 0) L.push('• Will plan on Monday.')
+  for (const t of d.nextWeek)
+    L.push(`• ${format(fromISO(t.dueAt!), 'EEE d')} – ${t.title}${t.priority === 'high' ? (wa ? ' ⭐' : ' (high)') : ''}`)
+  L.push('')
+
+  L.push('Happy to go through any of these in detail.', '')
+  L.push(`${wa ? '— ' : 'Regards,\n'}${settings.userName || '[Your name]'}`)
   return L.join('\n')
 }
